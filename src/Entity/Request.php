@@ -55,8 +55,7 @@ class Request {
      * @param string $method
      * @return $this Implementing fluent interface.
      */
-    public function setMethod($method)
-    {
+    public function setMethod($method) {
         $this->method = $method;
         return $this;
     }
@@ -65,8 +64,7 @@ class Request {
      * Returns the method to use for the request.
      * @return string
      */
-    public function getMethod()
-    {
+    public function getMethod() {
         return $this->method;
     }
 
@@ -75,8 +73,7 @@ class Request {
      * @param string $url
      * @return $this Implementing fluent interface.
      */
-    public function setUrl($url)
-    {
+    public function setUrl($url) {
         $this->url = $url;
         return $this;
     }
@@ -85,8 +82,7 @@ class Request {
      * Returns the URL to request.
      * @return string
      */
-    public function getUrl()
-    {
+    public function getUrl() {
         return $this->url;
     }
 
@@ -95,8 +91,7 @@ class Request {
      * @param string|array $requestData
      * @return $this Implementing fluent interface.
      */
-    public function setRequestData($requestData)
-    {
+    public function setRequestData($requestData) {
         if (is_array($requestData)) {
             $this->requestData = http_build_query($requestData);
         } else {
@@ -108,8 +103,7 @@ class Request {
     /**
      * @return string
      */
-    public function getRequestData()
-    {
+    public function getRequestData() {
         return $this->requestData;
     }
 
@@ -118,8 +112,7 @@ class Request {
      * @param array $headers
      * @return $this Implementing fluent interface.
      */
-    public function setHeaders($headers)
-    {
+    public function setHeaders(array $headers) {
         $this->headers = $headers;
         return $this;
     }
@@ -128,8 +121,7 @@ class Request {
      * Returns the additional headers to send with the request.
      * @return array
      */
-    public function getHeaders()
-    {
+    public function getHeaders() {
         return $this->headers;
     }
 
@@ -138,8 +130,7 @@ class Request {
      * @param int $timeout
      * @return $this Implementing fluent interface.
      */
-    public function setTimeout($timeout)
-    {
+    public function setTimeout($timeout) {
         $this->timeout = $timeout;
         return $this;
     }
@@ -148,8 +139,7 @@ class Request {
      * Returns the timeout to use.
      * @return int
      */
-    public function getTimeout()
-    {
+    public function getTimeout() {
         return $this->timeout;
     }
 }

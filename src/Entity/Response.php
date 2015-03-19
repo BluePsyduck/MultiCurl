@@ -32,8 +32,7 @@ class Response {
      * @param int $statusCode
      * @return $this Implementing fluent interface.
      */
-    public function setStatusCode($statusCode)
-    {
+    public function setStatusCode($statusCode) {
         $this->statusCode = $statusCode;
         return $this;
     }
@@ -42,8 +41,7 @@ class Response {
      * Returns the status code of the response.
      * @return int
      */
-    public function getStatusCode()
-    {
+    public function getStatusCode() {
         return $this->statusCode;
     }
 
@@ -52,8 +50,7 @@ class Response {
      * @param array $headers
      * @return $this Implementing fluent interface.
      */
-    public function setHeaders($headers)
-    {
+    public function setHeaders(array $headers) {
         $this->headers = $headers;
         return $this;
     }
@@ -62,8 +59,7 @@ class Response {
      * Returns the headers of the response.
      * @return array
      */
-    public function getHeaders()
-    {
+    public function getHeaders() {
         return $this->headers;
     }
 
@@ -72,8 +68,7 @@ class Response {
      * @param string $content
      * @return $this Implementing fluent interface.
      */
-    public function setContent($content)
-    {
+    public function setContent($content) {
         $this->content = $content;
         return $this;
     }
@@ -82,8 +77,7 @@ class Response {
      * Returns the content of the response.
      * @return string
      */
-    public function getContent()
-    {
+    public function getContent() {
         return $this->content;
     }
 }
