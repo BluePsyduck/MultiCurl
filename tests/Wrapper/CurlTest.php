@@ -28,6 +28,7 @@ class CurlTest extends TestCase {
     /**
      * Tests the __construct() method.
      * @covers \BluePsyduck\MultiCurl\Wrapper\Curl::__construct
+     * @runInSeparateProcess
      */
     public function testConstruct() {
         $handle = 'abc';
@@ -49,6 +50,7 @@ class CurlTest extends TestCase {
     /**
      * Tests the __destruct() method.
      * @covers \BluePsyduck\MultiCurl\Wrapper\Curl::__destruct
+     * @runInSeparateProcess
      */
     public function testDestruct() {
         $handle = 'abc';

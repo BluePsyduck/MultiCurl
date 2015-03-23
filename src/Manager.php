@@ -54,32 +54,36 @@ class Manager {
      * @return $this Implementing fluent interface.
      */
     public function execute() {
-        $this->initializeMultiCurl()
-             ->start();
+        $this->multiCurl = new MultiCurl();
+        $this->curls = $this->initializeMultiCurl($this->requests, $this->multiCurl);
+        $this->start();
         return $this;
     }
 
     /**
      * Initializes the MultiCurl request.
-     * @return $this Implementing fluent interface.
+     * @param array|\BluePsyduck\MultiCurl\Entity\Request[] $requests
+     * @param \BluePsyduck\MultiCurl\Wrapper\MultiCurl $multiCurl
+     * @return array|\BluePsyduck\MultiCurl\Wrapper\Curl[] The curl instances created during initialization.
      */
-    protected function initializeMultiCurl() {
-        $this->multiCurl = new MultiCurl();
-        foreach ($this->requests as $name => $request) {
-            $curl = $this->initializeCurlForRequest($request);
-            $this->curls[$name] = $curl;
-            $this->multiCurl->addCurl($curl);
+    protected function initializeMultiCurl(array $requests, MultiCurl $multiCurl) {
+        $result = array();
+        foreach ($requests as $name => $request) {
+            $curl = new Curl();
+            $this->initializeCurlForRequest($request, $curl);
+            $result[$name] = $curl;
+            $multiCurl->addCurl($curl);
         }
-        return $this;
+        return $result;
     }
 
     /**
      * Initializes the CURL for the specified request.
      * @param \BluePsyduck\MultiCurl\Entity\Request $request
-     * @return \BluePsyduck\MultiCurl\Wrapper\Curl The cURL instance.
+     * @param \BluePsyduck\MultiCurl\Wrapper\Curl $curl
+     * @return $this Implementing fluent interface.
      */
-    protected function initializeCurlForRequest(Request $request) {
-        $curl = new Curl();
+    protected function initializeCurlForRequest(Request $request, Curl $curl) {
         if ($request->getMethod() === Request::METHOD_POST) {
             $curl->setOption(CURLOPT_POST, true)
                  ->setOption(CURLOPT_POSTFIELDS, $request->getRequestData());
@@ -98,7 +102,7 @@ class Manager {
         if ($request->getHeaders()) {
             $curl->setOption(CURLOPT_HTTPHEADER, $request->getHeaders());
         }
-        return $curl;
+        return $this;
     }
 
     /**
@@ -136,7 +140,7 @@ class Manager {
     public function getResponse($name) {
         $response = null;
         if (array_key_exists($name, $this->responses)) {
-            $response = $this->responses[$response];
+            $response = $this->responses[$name];
         } elseif (array_key_exists($name, $this->requests)) {
             $response = $this->parseResponse($name);
             $this->responses[$name] = $response;
