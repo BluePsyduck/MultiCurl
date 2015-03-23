@@ -2,7 +2,7 @@
 /**
  * The main manager of the Multi-cURL.
  *
- * @author Marcel <marcel@mania-community.de>
+ * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-2.0 GPL v2
  */
 

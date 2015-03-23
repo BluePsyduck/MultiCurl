@@ -1,14 +1,14 @@
 {
     "name": "bluepsyduck/multicurl",
     "description": "Simple library helping with requesting multiple resources at once using multi cUrl.",
+    "homepage": "https://github.com/BluePsyduck/MultiCurl",
     "type": "library",
     "keywords": ["BluePsyduck", "MultiCurl", "Curl"],
     "license": "GPL-2.0",
     "authors": [
         {
-            "name": "Marcel",
-            "email": "marcel@mania-community.de",
-            "homepage": "http://www.mania-community.de/",
+            "name": "BluePsyduck",
+            "email": "bluepsyduck@gmx.com",
             "role": "Developer"
         }
     ],

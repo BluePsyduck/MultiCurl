@@ -7,7 +7,7 @@ use BluePsyduckTests\MultiCurl\Assets\TestCase;
 /**
  * PHPUnit test of the MultiCurl wrapper.
  *
- * @author Marcel <marcel@mania-community.de>
+ * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-2.0 GPL v2
  */
 class MultiCurlTest extends TestCase {

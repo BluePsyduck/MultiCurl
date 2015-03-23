@@ -10,7 +10,7 @@ use PHPUnit_Framework_TestCase;
  * The trick is to redefine the functions within the namespace where they get called, so that the mocked function is
  * preferred the PHP internal function on calling. Therefor each function mock is coupled to a concrete namespace.
  *
- * @author Marcel <marcel@mania-community.de>
+ * @author BluePsyduck <bluepsyduck@gmx.com>
  */
 class FunctionMocker {
     /**

@@ -8,7 +8,7 @@ use BluePsyduckTests\MultiCurl\Assets\TestCase;
 /**
  * The PHPUnit test of the request entity.
  *
- * @author Marcel <marcel@mania-community.de>
+ * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-2.0 GPL v2
  */
 class RequestTest extends TestCase {
