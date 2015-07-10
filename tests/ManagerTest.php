@@ -120,7 +120,8 @@ class ManagerTest extends TestCase {
                  ->setMethod(Request::METHOD_POST)
                  ->setRequestData('ghi=jkl')
                  ->setTimeout(1337)
-                 ->setHeaders(array('mno'));
+                 ->setHeaders(array('mno'))
+                 ->setBasicAuth('pqr', 'stu');
         $options2 = array(
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => 'ghi=jkl',
@@ -129,7 +130,8 @@ class ManagerTest extends TestCase {
             CURLOPT_HEADER => true,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_TIMEOUT => 1337,
-            CURLOPT_HTTPHEADER => array('mno')
+            CURLOPT_HTTPHEADER => array('mno'),
+            CURLOPT_USERPWD => 'pqr:stu'
         );
         return array(
             array($request1, $options1),

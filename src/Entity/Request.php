@@ -51,6 +51,18 @@ class Request {
     protected $timeout = 0;
 
     /**
+     * The username to use for basic authentication.
+     * @var string
+     */
+    protected $basicAuthUsername = '';
+
+    /**
+     * The password to use for basic authentication.
+     * @var string
+     */
+    protected $basicAuthPassword = '';
+
+    /**
      * Sets the method to use for the request.
      * @param string $method
      * @return $this Implementing fluent interface.
@@ -141,5 +153,33 @@ class Request {
      */
     public function getTimeout() {
         return $this->timeout;
+    }
+
+    /**
+     * Sets the credentials for the basic authentication.
+     * @param string $username The username to use.
+     * @param string $password The password to use.
+     * @return $this Implementing fluent interface.
+     */
+    public function setBasicAuth($username, $password) {
+        $this->basicAuthUsername = $username;
+        $this->basicAuthPassword = $password;
+        return $this;
+    }
+
+    /**
+     * Returns the username to use for basic authentication.
+     * @return string
+     */
+    public function getBasicAuthUsername() {
+        return $this->basicAuthUsername;
+    }
+
+    /**
+     * Returns the password to use for basic authentication.
+     * @return string
+     */
+    public function getBasicAuthPassword() {
+        return $this->basicAuthPassword;
     }
 }

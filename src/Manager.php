@@ -102,6 +102,10 @@ class Manager {
         if ($request->getHeaders()) {
             $curl->setOption(CURLOPT_HTTPHEADER, $request->getHeaders());
         }
+        if ($request->getBasicAuthUsername() && $request->getBasicAuthPassword()) {
+            $credentials = $request->getBasicAuthUsername() . ':' . $request->getBasicAuthPassword();
+            $curl->setOption(CURLOPT_USERPWD, $credentials);
+        }
         return $this;
     }
 

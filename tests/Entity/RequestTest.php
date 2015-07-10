@@ -144,4 +144,42 @@ class RequestTest extends TestCase {
         $result = $request->getTimeout();
         $this->assertEquals($expected, $result);
     }
+
+    /**
+     * Tests the setBasicAuth() method.
+     * @covers \BluePsyduck\MultiCurl\Entity\Request::setBasicAuth
+     */
+    public function testSetBasicAuth() {
+        $username = 'abc';
+        $password = 'def';
+        $request = new Request();
+        $result = $request->setBasicAuth($username, $password);
+        $this->assertEquals($request, $result);
+        $this->assertPropertyEquals($username, $request, 'basicAuthUsername');
+        $this->assertPropertyEquals($password, $request, 'basicAuthPassword');
+    }
+    
+    /**
+     * Tests the getBasicAuthUsername() method.
+     * @covers \BluePsyduck\MultiCurl\Entity\Request::getBasicAuthUsername
+     */
+    public function testGetBasicAuthUsername() {
+        $expected = 'abc';
+        $request = new Request();
+        $this->injectProperty($request, 'basicAuthUsername', $expected);
+        $result = $request->getBasicAuthUsername();
+        $this->assertEquals($expected, $result);
+    }
+    
+    /**
+     * Tests the getBasicAuthPassword() method.
+     * @covers \BluePsyduck\MultiCurl\Entity\Request::getBasicAuthPassword
+     */
+    public function testGetBasicAuthPassword() {
+        $expected = 'abc';
+        $request = new Request();
+        $this->injectProperty($request, 'basicAuthPassword', $expected);
+        $result = $request->getBasicAuthPassword();
+        $this->assertEquals($expected, $result);
+    }
 }
