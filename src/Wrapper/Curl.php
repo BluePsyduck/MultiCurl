@@ -65,4 +65,20 @@ class Curl {
     public function getInfo($name) {
         return curl_getinfo($this->handle, $name);
     }
+
+    /**
+     * Returns the error code of the cURL instance.
+     * @return int
+     */
+    public function getErrorCode() {
+        return curl_errno($this->handle);
+    }
+
+    /**
+     * Returns the error message of the cURL instance.
+     * @return string
+     */
+    public function getErrorMessage() {
+        return curl_error($this->handle);
+    }
 }

@@ -13,6 +13,54 @@ use BluePsyduckTests\MultiCurl\Assets\TestCase;
  */
 class ResponseTest extends TestCase {
     /**
+     * Tests the setErrorCode() method.
+     * @covers \BluePsyduck\MultiCurl\Entity\Response::setErrorCode
+     */
+    public function testSetErrorCode() {
+        $expected = 42;
+        $response = new Response();
+        $result = $response->setErrorCode($expected);
+        $this->assertEquals($response, $result);
+        $this->assertPropertyEquals($expected, $response, 'errorCode');
+    }
+
+    /**
+     * Tests the getErrorCode() method.
+     * @covers \BluePsyduck\MultiCurl\Entity\Response::getErrorCode
+     */
+    public function testGetErrorCode() {
+        $expected = 42;
+        $response = new Response();
+        $this->injectProperty($response, 'errorCode', $expected);
+        $result = $response->getErrorCode();
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * Tests the setErrorMessage() method.
+     * @covers \BluePsyduck\MultiCurl\Entity\Response::setErrorMessage
+     */
+    public function testSetErrorMessage() {
+        $expected = 'abc';
+        $response = new Response();
+        $result = $response->setErrorMessage($expected);
+        $this->assertEquals($response, $result);
+        $this->assertPropertyEquals($expected, $response, 'errorMessage');
+    }
+
+    /**
+     * Tests the getErrorMessage() method.
+     * @covers \BluePsyduck\MultiCurl\Entity\Response::getErrorMessage
+     */
+    public function testGetErrorMessage() {
+        $expected = 'abc';
+        $response = new Response();
+        $this->injectProperty($response, 'errorMessage', $expected);
+        $result = $response->getErrorMessage();
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
      * Tests the setStatusCode() method.
      * @covers \BluePsyduck\MultiCurl\Entity\Response::setStatusCode
      */

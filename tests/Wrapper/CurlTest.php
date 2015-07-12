@@ -147,4 +147,46 @@ class CurlTest extends TestCase {
         $result = $wrapper->getInfo($name);
         $this->assertEquals($info, $result);
     }
+    
+    /**
+     * Tests the getErrorCode() method.
+     * @covers \BluePsyduck\MultiCurl\Wrapper\Curl::getErrorCode
+     */
+    public function testGetErrorCode() {
+        $handle = 'abc';
+        $errorCode = 42;
+
+        $functions = $this->getFunctionMockBuilder('BluePsyduck\MultiCurl\Wrapper')
+                          ->setFunctions(array('curl_errno'))
+                          ->getMock();
+        $functions->expects($this->once())
+                  ->method('curl_errno')
+                  ->with($handle)
+                  ->willReturn($errorCode);
+
+        $wrapper = $this->getMockedWrapper($handle);
+        $result = $wrapper->getErrorCode();
+        $this->assertEquals($errorCode, $result);
+    }
+
+    /**
+     * Tests the getErrorMessage() method.
+     * @covers \BluePsyduck\MultiCurl\Wrapper\Curl::getErrorMessage
+     */
+    public function testGetErrorMessage() {
+        $handle = 'abc';
+        $errorMessage = 'def';
+
+        $functions = $this->getFunctionMockBuilder('BluePsyduck\MultiCurl\Wrapper')
+                          ->setFunctions(array('curl_error'))
+                          ->getMock();
+        $functions->expects($this->once())
+                  ->method('curl_error')
+                  ->with($handle)
+                  ->willReturn($errorMessage);
+
+        $wrapper = $this->getMockedWrapper($handle);
+        $result = $wrapper->getErrorMessage();
+        $this->assertEquals($errorMessage, $result);
+    }
 }

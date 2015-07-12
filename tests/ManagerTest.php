@@ -5,6 +5,7 @@ namespace BluePsyduckTests\MultiCurl;
 use BluePsyduck\MultiCurl\Entity\Request;
 use BluePsyduck\MultiCurl\Entity\Response;
 use BluePsyduck\MultiCurl\Manager;
+use BluePsyduck\MultiCurl\Wrapper\Curl;
 use BluePsyduckTests\MultiCurl\Assets\TestCase;
 
 /**
@@ -15,21 +16,52 @@ use BluePsyduckTests\MultiCurl\Assets\TestCase;
  */
 class ManagerTest extends TestCase {
     /**
+     * Tests the __construct() method.
+     * @covers \BluePsyduck\MultiCurl\Manager::__construct
+     */
+    public function testConstruct() {
+        $manager = new Manager();
+        $this->assertPropertyInstanceOf('BluePsyduck\MultiCurl\Wrapper\MultiCurl', $manager, 'multiCurl');
+    }
+    
+    /**
      * Tests the addRequest() method.
      * @covers \BluePsyduck\MultiCurl\Manager::addRequest
      */
     public function testAddRequest() {
-        $request1 = new Request();
+        /* @var $request1 \BluePsyduck\MultiCurl\Entity\Request|\PHPUnit_Framework_MockObject_MockObject */
+        $request1 = $this->getMockBuilder('BluePsyduck\MultiCurl\Entity\Request')
+                         ->setMethods(array('setCurl'))
+                         ->getMock();
+        $request1->expects($this->once())
+                 ->method('setCurl')
+                 ->with($this->isInstanceOf('BluePsyduck\MultiCurl\Wrapper\Curl'));
         $request1->setUrl('abc');
+
         $request2 = new Request();
         $request2->setUrl('def');
 
-        $requests = array('ghi' => $request1);
-        $expectedRequests = array('ghi' => $request1, 'jkl' => $request2);
+        $requests = array($request2);
+        $expectedRequests = array($request2, $request1);
 
-        $manager = new Manager();
-        $this->injectProperty($manager, 'requests', $requests);
-        $result = $manager->addRequest('jkl', $request2);
+        /* @var $multiCurl \BluePsyduck\MultiCurl\Wrapper\MultiCurl|\PHPUnit_Framework_MockObject_MockObject */
+        $multiCurl = $this->getMockBuilder('BluePsyduck\MultiCurl\Wrapper\MultiCurl')
+                          ->setMethods(array('addCurl'))
+                          ->getMock();
+        $multiCurl->expects($this->once())
+                  ->method('addCurl')
+                  ->with($this->isInstanceOf('BluePsyduck\MultiCurl\Wrapper\Curl'));
+
+        /* @var $manager \BluePsyduck\MultiCurl\Manager|\PHPUnit_Framework_MockObject_MockObject */
+        $manager = $this->getMockBuilder('BluePsyduck\MultiCurl\Manager')
+                        ->setMethods(array('hydrateCurlFromRequest'))
+                        ->getMock();
+        $manager->expects($this->once())
+                ->method('hydrateCurlFromRequest')
+                ->with($this->isInstanceOf('BluePsyduck\MultiCurl\Wrapper\Curl'), $request1);
+        $this->injectProperty($manager, 'multiCurl', $multiCurl)
+             ->injectProperty($manager, 'requests', $requests);
+        $result = $manager->addRequest($request1);
         $this->assertEquals($manager, $result);
         $this->assertPropertyEquals($expectedRequests, $manager, 'requests');
     }
@@ -39,71 +71,39 @@ class ManagerTest extends TestCase {
      * @covers \BluePsyduck\MultiCurl\Manager::execute
      */
     public function testExecute() {
-        $requests = array('abc' => 'def');
-        $curls = array('ghi' => 'jkl');
-
-        /* @var $manager \BluePsyduck\MultiCurl\Manager|\PHPUnit_Framework_MockObject_MockObject */
-        $manager = $this->getMockBuilder('BluePsyduck\MultiCurl\Manager')
-                        ->setMethods(array('initializeMultiCurl', 'start'))
-                        ->getMock();
-        $manager->expects($this->at(0))
-                ->method('initializeMultiCurl')
-                ->with($requests, $this->isInstanceOf('BluePsyduck\MultiCurl\Wrapper\MultiCurl'))
-                ->willReturn($curls);
-        $manager->expects($this->at(1))
-                ->method('start')
-                ->willReturnSelf();
-
-        $this->injectProperty($manager, 'requests', $requests);
-
-        $result = $manager->execute();
-        $this->assertEquals($manager, $result);
-        $this->assertPropertyInstanceOf('BluePsyduck\MultiCurl\Wrapper\MultiCurl', $manager, 'multiCurl');
-        $this->assertPropertyEquals($curls, $manager, 'curls');
-    }
-
-    /**
-     * Tests the initializeMultiCurl() method.
-     * @covers \BluePsyduck\MultiCurl\Manager::initializeMultiCurl
-     */
-    public function testInitializeMultiCurl() {
-        $request1 = new Request();
-        $request1->setUrl('abc');
-        $request2 = new Request();
-        $request2->setUrl('def');
-        $requests = array('foo' => $request1, 'bar' => $request2);
-
         /* @var $multiCurl \BluePsyduck\MultiCurl\Wrapper\MultiCurl|\PHPUnit_Framework_MockObject_MockObject */
         $multiCurl = $this->getMockBuilder('BluePsyduck\MultiCurl\Wrapper\MultiCurl')
-                          ->setMethods(array('__construct', '__destruct', 'addCurl'))
+                          ->setMethods(array('execute', 'getCurrentExecutionCode', '__construct', '__destruct'))
                           ->disableOriginalConstructor()
                           ->getMock();
-        $multiCurl->expects($this->exactly(2))
-                  ->method('addCurl')
-                  ->with($this->isInstanceOf('BluePsyduck\MultiCurl\Wrapper\Curl'));
+        $multiCurl->expects($this->at(0))
+                  ->method('execute');
+        $multiCurl->expects($this->at(1))
+                  ->method('getCurrentExecutionCode')
+                  ->willReturn(CURLM_CALL_MULTI_PERFORM);
+        $multiCurl->expects($this->at(2))
+                  ->method('execute');
+        $multiCurl->expects($this->at(3))
+                  ->method('getCurrentExecutionCode')
+                  ->willReturn(CURLM_OK);
+
 
         /* @var $manager \BluePsyduck\MultiCurl\Manager|\PHPUnit_Framework_MockObject_MockObject */
         $manager = $this->getMockBuilder('BluePsyduck\MultiCurl\Manager')
-                        ->setMethods(array('initializeCurlForRequest'))
+                        ->setMethods(array('checkStatusMessages'))
                         ->getMock();
-        $manager->expects($this->at(0))
-                ->method('initializeCurlForRequest')
-                ->with($request1, $this->isInstanceOf('BluePsyduck\MultiCurl\Wrapper\Curl'));
-        $manager->expects($this->at(1))
-                ->method('initializeCurlForRequest')
-                ->with($request2, $this->isInstanceOf('BluePsyduck\MultiCurl\Wrapper\Curl'));
-
-        $result = $this->invokeMethod($manager, 'initializeMultiCurl', array($requests, $multiCurl));
-        $this->assertEquals(2, count($result));
-        $this->assertInstanceOf('BluePsyduck\MultiCurl\Wrapper\Curl', $result['foo']);
-        $this->assertInstanceOf('BluePsyduck\MultiCurl\Wrapper\Curl', $result['bar']);
+        $manager->expects($this->exactly(2))
+                ->method('checkStatusMessages');
+        $this->injectProperty($manager, 'multiCurl', $multiCurl);
+        $result = $manager->execute();
+        $this->assertEquals($manager, $result);
     }
 
     /**
-     * Provides the data for the initializeCurlForRequest() test.
+     * Provides the data for the hydrateCurlFromRequest() test.
      * @return array The data.
      */
-    public function provideInitializeCurlForRequest() {
+    public function provideHydrateCurlFromRequest() {
         $request1 = new Request();
         $request1->setUrl('abc')
                  ->setMethod(Request::METHOD_GET);
@@ -140,13 +140,13 @@ class ManagerTest extends TestCase {
     }
 
     /**
-     * Tests the initializeCurlForRequest() method.
+     * Tests the hydrateCurlFromRequest() method.
      * @param Request $request The request to use.
      * @param array $expectedOptions The expected options to be set in the Curl instance.
-     * @covers \BluePsyduck\MultiCurl\Manager::initializeCurlForRequest
-     * @dataProvider provideInitializeCurlForRequest
+     * @covers \BluePsyduck\MultiCurl\Manager::hydrateCurlFromRequest
+     * @dataProvider provideHydrateCurlFromRequest
      */
-    public function testInitializeCurlForRequest(Request $request, array $expectedOptions) {
+    public function testHydrateCurlFromRequest(Request $request, array $expectedOptions) {
         /* @var $curl \BluePsyduck\MultiCurl\Wrapper\Curl|\PHPUnit_Framework_MockObject_MockObject */
         $curl = $this->getMockBuilder('BluePsyduck\MultiCurl\Wrapper\Curl')
                      ->setMethods(array('__construct', '__destruct', 'setOption'))
@@ -163,34 +163,7 @@ class ManagerTest extends TestCase {
         }
 
         $manager = new Manager();
-        $result = $this->invokeMethod($manager, 'initializeCurlForRequest', array($request, $curl));
-        $this->assertEquals($manager, $result);
-    }
-
-    /**
-     * Tests the start() method.
-     * @covers \BluePsyduck\MultiCurl\Manager::start
-     */
-    public function testStart() {
-        /* @var $multiCurl \BluePsyduck\MultiCurl\Wrapper\MultiCurl|\PHPUnit_Framework_MockObject_MockObject */
-        $multiCurl = $this->getMockBuilder('BluePsyduck\MultiCurl\Wrapper\MultiCurl')
-                          ->setMethods(array('execute', 'getCurrentExecutionCode', '__construct', '__destruct'))
-                          ->disableOriginalConstructor()
-                          ->getMock();
-        $multiCurl->expects($this->at(0))
-                  ->method('execute');
-        $multiCurl->expects($this->at(1))
-                  ->method('getCurrentExecutionCode')
-                  ->willReturn(CURLM_CALL_MULTI_PERFORM);
-        $multiCurl->expects($this->at(2))
-                  ->method('execute');
-        $multiCurl->expects($this->at(3))
-                  ->method('getCurrentExecutionCode')
-                  ->willReturn(CURLM_OK);
-
-        $manager = new Manager();
-        $this->injectProperty($manager, 'multiCurl', $multiCurl);
-        $result = $this->invokeMethod($manager, 'start');
+        $result = $this->invokeMethod($manager, 'hydrateCurlFromRequest', array($curl, $request));
         $this->assertEquals($manager, $result);
     }
 
@@ -271,97 +244,183 @@ class ManagerTest extends TestCase {
 
         /* @var $manager \BluePsyduck\MultiCurl\Manager|\PHPUnit_Framework_MockObject_MockObject */
         $manager = $this->getMockBuilder('BluePsyduck\MultiCurl\Manager')
-                        ->setMethods(array('start'))
+                        ->setMethods(array('execute'))
                         ->getMock();
         $manager->expects($this->exactly($expectedStartCount))
-                ->method('start');
+                ->method('execute');
         $this->injectProperty($manager, 'multiCurl', $multiCurl);
 
         $result = $manager->waitForRequests();
         $this->assertEquals($manager, $result);
     }
+    
+    /**
+     * Tests the checkStatusMessages() method.
+     * @covers \BluePsyduck\MultiCurl\Manager::checkStatusMessages
+     */
+    public function testCheckStatusMessages() {
+        $handle1 = 'abc';
+        $handle2 = 'def';
+        $response = new Response();
+        $response->setContent('ghi');
+
+        /* @var $request \BluePsyduck\MultiCurl\Entity\Request|\PHPUnit_Framework_MockObject_MockObject */
+        $request = $this->getMockBuilder('BluePsyduck\MultiCurl\Entity\Request')
+                        ->setMethods(array('setResponse'))
+                        ->getMock();
+        $request->expects($this->once())
+                ->method('setResponse')
+                ->with($response);
+
+        /* @var $multiCurl \BluePsyduck\MultiCurl\Wrapper\MultiCurl|\PHPUnit_Framework_MockObject_MockObject */
+        $multiCurl = $this->getMockBuilder('BluePsyduck\MultiCurl\Wrapper\MultiCurl')
+                          ->setMethods(array('readInfo'))
+                          ->getMock();
+        $multiCurl->expects($this->at(0))
+                  ->method('readInfo')
+                  ->willReturn(array('handle' => $handle1, 'result' => 42));
+        $multiCurl->expects($this->at(1))
+                  ->method('readInfo')
+                  ->willReturn(array('handle' => $handle2, 'result' => 1337));
+        $multiCurl->expects($this->at(2))
+                  ->method('readInfo')
+                  ->willReturn(false);
+
+        /* @var $manager \BluePsyduck\MultiCurl\Manager|\PHPUnit_Framework_MockObject_MockObject */
+        $manager = $this->getMockBuilder('BluePsyduck\MultiCurl\Manager')
+                        ->setMethods(array('findRequestToCurlHandle', 'createResponse'))
+                        ->getMock();
+        $manager->expects($this->at(0))
+                ->method('findRequestToCurlHandle')
+                ->with($handle1)
+                ->willReturn(null);
+        $manager->expects($this->at(1))
+                ->method('findRequestToCurlHandle')
+                ->with($handle2)
+                ->willReturn($request);
+        $manager->expects($this->at(2))
+                ->method('createResponse')
+                ->with(1337, $request)
+                ->willReturn($response);
+        $this->injectProperty($manager, 'multiCurl', $multiCurl);
+
+        $result = $this->invokeMethod($manager, 'checkStatusMessages');
+        $this->assertEquals($manager, $result);
+    }
 
     /**
-     * Provides the data for the getResponse() test.
+     * Provides the data for the findRequestToCurlHandle() test.
      * @return array The data.
      */
-    public function provideGetResponse() {
+    public function provideFindRequestToCurlHandle() {
         $request1 = new Request();
-        $request1->setUrl('abc');
+        $request1->setUrl('abc')
+                 ->setCurl(new Curl());
         $request2 = new Request();
-        $request2->setUrl('def');
-
-        $response1 = new Response();
-        $response1->setContent('ghi');
-        $response2 = new Response();
-        $response2->setContent('jkl');
+        $request2->setUrl('def')
+                 ->setCurl(new Curl());
 
         return array(
-            array(
-                'foo',
-                array(),
-                array(),
-                null,
-                array(),
-                null
-            ),
-            array(
-                'foo',
-                array('foo' => $request1, 'bar' => $request2),
-                array('bar' => $response2),
-                $response1,
-                array('foo' => $response1, 'bar' => $response2),
-                $response1
-            ),
-            array(
-                'foo',
-                array('foo' => $request1, 'bar' => $request2),
-                array('foo' => $response1, 'bar' => $response2),
-                null,
-                array('foo' => $response1, 'bar' => $response2),
-                $response1
-            )
+            array(array($request1, $request2), $request1->getCurl()->getHandle(), $request1),
+            array(array($request1, $request2), 'ghi', null),
         );
     }
 
     /**
-     * Tests the getResponse() method.
-     * @param string $name The name to use.
-     * @param array $requests The requests to set.
-     * @param array $responses The responses to set.
-     * @param \BluePsyduck\MultiCurl\Entity\Response|null $resultParseResponse The response to be returned from
-     * parseResponse(), or null if not called.
-     * @param array $expectedResponses The responses array to be expected in the manager.
-     * @param \BluePsyduck\MultiCurl\Entity\Response|null $expectedResult The expected result.
-     * @covers \BluePsyduck\MultiCurl\Manager::getResponse
-     * @dataProvider provideGetResponse
+     * Tests the findRequestToCurlHandle() method.
+     * @param array|\BluePsyduck\MultiCurl\Entity\Request[] $requests The requests to set.
+     * @param resource $handle The handle to use.
+     * @param \BluePsyduck\MultiCurl\Entity\Request|null $expectedResult The expected result.
+     * @covers \BluePsyduck\MultiCurl\Manager::findRequestToCurlHandle
+     * @dataProvider provideFindRequestToCurlHandle
      */
-    public function testGetResponse(
-        $name, $requests, $responses, $resultParseResponse, $expectedResponses, $expectedResult
-    ) {
-        /* @var $manager \BluePsyduck\MultiCurl\Manager|\PHPUnit_Framework_MockObject_MockObject */
-        $manager = $this->getMockBuilder('BluePsyduck\MultiCurl\Manager')
-                        ->setMethods(array('parseResponse'))
-                        ->getMock();
-        $manager->expects(is_null($resultParseResponse) ? $this->never() : $this->once())
-                ->method('parseResponse')
-                ->with($name)
-                ->willReturn($resultParseResponse);
-
-        $this->injectProperty($manager, 'requests', $requests)
-             ->injectProperty($manager, 'responses', $responses);
-
-        $result = $manager->getResponse($name);
+    public function testFindRequestToCurlHandle($requests, $handle, $expectedResult) {
+        $manager = new Manager();
+        $this->injectProperty($manager, 'requests', $requests);
+        $result = $this->invokeMethod($manager, 'findRequestToCurlHandle', array($handle));
         $this->assertEquals($expectedResult, $result);
-        $this->assertPropertyEquals($expectedResponses, $manager, 'responses');
     }
 
     /**
-     * Tests the parseResponse() method.
-     * @covers \BluePsyduck\MultiCurl\Manager::parseResponse
+     * Provides the data for the createResponse() test.
+     * @return array The data.
+     */
+    public function provideCreateResponse() {
+        /* @var $curl1 \BluePsyduck\MultiCurl\Wrapper\Curl|\PHPUnit_Framework_MockObject_MockObject */
+        $curl1 = $this->getMockBuilder('BluePsyduck\MultiCurl\Wrapper\Curl')
+                      ->setMethods(array('getErrorMessage'))
+                      ->getMock();
+        $curl1->expects($this->once())
+              ->method('getErrorMessage')
+              ->willReturn('abc');
+        $request1 = new Request();
+        $request1->setCurl($curl1);
+
+        /* @var $curl2 \BluePsyduck\MultiCurl\Wrapper\Curl|\PHPUnit_Framework_MockObject_MockObject */
+        $curl2 = $this->getMockBuilder('BluePsyduck\MultiCurl\Wrapper\Curl')
+                      ->setMethods(array('getErrorMessage'))
+                      ->getMock();
+        $curl2->expects($this->once())
+              ->method('getErrorMessage')
+              ->willReturn('def');
+        /* @var $request2 \BluePsyduck\MultiCurl\Entity\Request|\PHPUnit_Framework_MockObject_MockObject */
+        $request2 = $this->getMockBuilder('BluePsyduck\MultiCurl\Entity\Request')
+                         ->setMethods(array('onComplete'))
+                         ->getMock();
+        $request2->expects($this->once())
+                 ->method('onComplete')
+                 ->with($request2);
+        $request2->setCurl($curl2)
+                 ->setOnCompleteCallback(array($request2, 'onComplete'));
+
+        return array(
+            array(CURLE_OK, $request1, true, CURLE_OK, 'abc'),
+            array(42, $request2, false, 42, 'def')
+        );
+    }
+
+    /**
+     * Tests the createResponse() method.
+     * @param int $statusCode The status code to use.
+     * @param \BluePsyduck\MultiCurl\Entity\Request $request The request to use.
+     * @param bool $expectHydrateResponse Whether to expect hydrateResponse() to be called.
+     * @param int $expectedErrorCode The expected status code.
+     * @param string $expectedErrorMessage The expected error message.
+     * @covers \BluePsyduck\MultiCurl\Manager::createResponse
+     * @dataProvider provideCreateResponse
+     */
+    public function testCreateResponse(
+        $statusCode, $request, $expectHydrateResponse, $expectedErrorCode, $expectedErrorMessage
+    ) {
+        /* @var $multiCurl \BluePsyduck\MultiCurl\Wrapper\MultiCurl|\PHPUnit_Framework_MockObject_MockObject */
+        $multiCurl = $this->getMockBuilder('BluePsyduck\MultiCurl\Wrapper\MultiCurl')
+                          ->setMethods(array('removeCurl'))
+                          ->getMock();
+        $multiCurl->expects($this->once())
+                  ->method('removeCurl')
+                  ->with($request->getCurl());
+
+        /* @var $manager \BluePsyduck\MultiCurl\Manager|\PHPUnit_Framework_MockObject_MockObject */
+        $manager = $this->getMockBuilder('BluePsyduck\MultiCurl\Manager')
+                        ->setMethods(array('hydrateResponse'))
+                        ->getMock();
+        $manager->expects($expectHydrateResponse ? $this->once() : $this->never())
+                ->method('hydrateResponse')
+                ->with($this->isInstanceOf('BluePsyduck\MultiCurl\Entity\Response'), $request);
+        $this->injectProperty($manager, 'multiCurl', $multiCurl);
+
+        $result = $this->invokeMethod($manager, 'createResponse', array($statusCode, $request));
+        $this->assertInstanceOf('BluePsyduck\MultiCurl\Entity\Response', $result);
+        /* @var \BluePsyduck\MultiCurl\Entity\Response $result */
+        $this->assertEquals($expectedErrorCode, $result->getErrorCode());
+        $this->assertEquals($expectedErrorMessage, $result->getErrorMessage());
+    }
+    
+    /**
+     * Tests the hydrateResponse() method.
+     * @covers \BluePsyduck\MultiCurl\Manager::hydrateResponse
      */
     public function testParseResponse() {
-        $name = 'foo';
         $rawContent = 'abcdef';
         $rawHeader = 'abc';
         $headers = array('abc');
@@ -370,8 +429,7 @@ class ManagerTest extends TestCase {
 
         /* @var $curl \BluePsyduck\MultiCurl\Wrapper\Curl|\PHPUnit_Framework_MockObject_MockObject */
         $curl = $this->getMockBuilder('BluePsyduck\MultiCurl\Wrapper\Curl')
-                     ->setMethods(array('__construct', '__destruct', 'getInfo'))
-                     ->disableOriginalConstructor()
+                     ->setMethods(array('getInfo'))
                      ->getMock();
         $curl->expects($this->at(0))
              ->method('getInfo')
@@ -382,18 +440,34 @@ class ManagerTest extends TestCase {
              ->with(CURLINFO_HTTP_CODE)
              ->willReturn($statusCode);
 
+        $request = new Request();
+        $request->setCurl($curl);
+
+        /* @var $response \BluePsyduck\MultiCurl\Entity\Response|\PHPUnit_Framework_MockObject_MockObject */
+        $response = $this->getMockBuilder('BluePsyduck\MultiCurl\Entity\Response')
+                         ->setMethods(array('setStatusCode', 'setHeaders', 'setContent'))
+                         ->getMock();
+        $response->expects($this->once())
+                 ->method('setStatusCode')
+                 ->with($statusCode)
+                 ->willReturnSelf();
+        $response->expects($this->once())
+                 ->method('setHeaders')
+                 ->with($headers)
+                 ->willReturnSelf();
+        $response->expects($this->once())
+                 ->method('setContent')
+                 ->with($content)
+                 ->willReturnSelf();
+
         /* @var $multiCurl \BluePsyduck\MultiCurl\Wrapper\MultiCurl|\PHPUnit_Framework_MockObject_MockObject */
         $multiCurl = $this->getMockBuilder('BluePsyduck\MultiCurl\Wrapper\MultiCurl')
-                          ->setMethods(array('__construct', '__destruct', 'getContent', 'removeCurl'))
-                          ->disableOriginalConstructor()
+                          ->setMethods(array('getContent'))
                           ->getMock();
-        $multiCurl->expects($this->at(0))
+        $multiCurl->expects($this->once())
                   ->method('getContent')
                   ->with($curl)
                   ->willReturn($rawContent);
-        $multiCurl->expects($this->at(1))
-                  ->method('removeCurl')
-                  ->with($curl);
 
         /* @var $manager \BluePsyduck\MultiCurl\Manager|\PHPUnit_Framework_MockObject_MockObject */
         $manager = $this->getMockBuilder('BluePsyduck\MultiCurl\Manager')
@@ -403,16 +477,10 @@ class ManagerTest extends TestCase {
                 ->method('parseHeaders')
                 ->with($rawHeader)
                 ->willReturn($headers);
-        $this->injectProperty($manager, 'multiCurl', $multiCurl)
-             ->injectProperty($manager, 'curls', array($name => $curl));
+        $this->injectProperty($manager, 'multiCurl', $multiCurl);
 
-        $result = $this->invokeMethod($manager, 'parseResponse', array($name));
-        $this->assertInstanceOf('BluePsyduck\MultiCurl\Entity\Response', $result);
-        /* @var \BluePsyduck\MultiCurl\Entity\Response $result */
-        $this->assertEquals($statusCode, $result->getStatusCode());
-        $this->assertEquals($headers, $result->getHeaders());
-        $this->assertEquals($content, $result->getContent());
-        $this->assertPropertyEquals(array(), $manager, 'curls');
+        $result = $this->invokeMethod($manager, 'hydrateResponse', array($response, $request));
+        $this->assertEquals($manager, $result);
     }
 
     /**

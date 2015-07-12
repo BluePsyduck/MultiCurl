@@ -174,6 +174,27 @@ class MultiCurlTest extends TestCase {
     }
 
     /**
+     * Tests the readInfo() method.
+     * @covers \BluePsyduck\MultiCurl\Wrapper\MultiCurl::readInfo
+     */
+    public function testReadInfo() {
+        $handle = 'abc';
+        $info = array('result' => 42);
+
+        $functions = $this->getFunctionMockBuilder('BluePsyduck\MultiCurl\Wrapper')
+                          ->setFunctions(array('curl_multi_info_read'))
+                          ->getMock();
+        $functions->expects($this->once())
+                  ->method('curl_multi_info_read')
+                  ->with($handle)
+                  ->willReturn($info);
+
+        $wrapper = $this->getMockedWrapper($handle);
+        $result = $wrapper->readInfo();
+        $this->assertEquals($info, $result);
+    }
+
+    /**
      * Tests the select() method.
      * @covers \BluePsyduck\MultiCurl\Wrapper\MultiCurl::select
      */

@@ -80,6 +80,14 @@ class MultiCurl {
     }
 
     /**
+     * Reads the next status message from the cUrl requests.
+     * @return array|false Either the status message as array, or false if there are no mor messages.
+     */
+    public function readInfo() {
+        return curl_multi_info_read($this->handle);
+    }
+
+    /**
      * Selects all sockets which have an activity.
      * @param int|null $timeout The timeout in seconds to wait.
      * @return int The number of selected descriptors.

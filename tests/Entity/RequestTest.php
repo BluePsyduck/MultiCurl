@@ -3,6 +3,8 @@
 namespace BluePsyduckTests\MultiCurl\Entity;
 
 use BluePsyduck\MultiCurl\Entity\Request;
+use BluePsyduck\MultiCurl\Entity\Response;
+use BluePsyduck\MultiCurl\Wrapper\Curl;
 use BluePsyduckTests\MultiCurl\Assets\TestCase;
 
 /**
@@ -180,6 +182,78 @@ class RequestTest extends TestCase {
         $request = new Request();
         $this->injectProperty($request, 'basicAuthPassword', $expected);
         $result = $request->getBasicAuthPassword();
+        $this->assertEquals($expected, $result);
+    }
+    
+    /**
+     * Tests the setOnCompleteCallback() method.
+     * @covers \BluePsyduck\MultiCurl\Entity\Request::setOnCompleteCallback
+     */
+    public function testSetOnCompleteCallback() {
+        $expected = 'time';
+        $request = new Request();
+        $result = $request->setOnCompleteCallback($expected);
+        $this->assertEquals($request, $result);
+        $this->assertPropertyEquals($expected, $request, 'onCompleteCallback');
+    }
+    
+    /**
+     * Tests the getOnCompleteCallback() method.
+     * @covers \BluePsyduck\MultiCurl\Entity\Request::getOnCompleteCallback
+     */
+    public function testGetOnCompleteCallback() {
+        $expected = 'time';
+        $request = new Request();
+        $this->injectProperty($request, 'onCompleteCallback', $expected);
+        $result = $request->getOnCompleteCallback();
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * Tests the setCurl() method.
+     * @covers \BluePsyduck\MultiCurl\Entity\Request::setCurl
+     */
+    public function testSetCurl() {
+        $expected = new Curl();
+        $request = new Request();
+        $result = $request->setCurl($expected);
+        $this->assertEquals($request, $result);
+        $this->assertPropertyEquals($expected, $request, 'curl');
+    }
+
+    /**
+     * Tests the getCurl() method.
+     * @covers \BluePsyduck\MultiCurl\Entity\Request::getCurl
+     */
+    public function testGetCurl() {
+        $expected = new Curl();
+        $request = new Request();
+        $this->injectProperty($request, 'curl', $expected);
+        $result = $request->getCurl();
+        $this->assertEquals($expected, $result);
+    }
+    
+    /**
+     * Tests the setResponse() method.
+     * @covers \BluePsyduck\MultiCurl\Entity\Request::setResponse
+     */
+    public function testSetResponse() {
+        $expected = new Response();
+        $request = new Request();
+        $result = $request->setResponse($expected);
+        $this->assertEquals($request, $result);
+        $this->assertPropertyEquals($expected, $request, 'response');
+    }
+    
+    /**
+     * Tests the getResponse() method.
+     * @covers \BluePsyduck\MultiCurl\Entity\Request::getResponse
+     */
+    public function testGetResponse() {
+        $expected = new Response();
+        $request = new Request();
+        $this->injectProperty($request, 'response', $expected);
+        $result = $request->getResponse();
         $this->assertEquals($expected, $result);
     }
 }

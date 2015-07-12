@@ -9,6 +9,8 @@
 
 namespace BluePsyduck\MultiCurl\Entity;
 
+use BluePsyduck\MultiCurl\Wrapper\Curl;
+
 class Request {
     /**
      * The request uses the GET method.
@@ -61,6 +63,24 @@ class Request {
      * @var string
      */
     protected $basicAuthPassword = '';
+
+    /**
+     * The callback to execute on completing the request.
+     * @var callable
+     */
+    protected $onCompleteCallback;
+
+    /**
+     * The cUrl instance used for executing the request.
+     * @var \BluePsyduck\MultiCurl\Wrapper\Curl
+     */
+    protected $curl;
+
+    /**
+     * The response entity, available once the request has been completed.
+     * @var \BluePsyduck\MultiCurl\Entity\Response
+     */
+    protected $response;
 
     /**
      * Sets the method to use for the request.
@@ -181,5 +201,59 @@ class Request {
      */
     public function getBasicAuthPassword() {
         return $this->basicAuthPassword;
+    }
+
+    /**
+     * Sets the callback to execute on completing the request.
+     * @param callable $onCompleteCallback The callback must expect exactly one parameter: The request entity.
+     * @return $this Implementing fluent interface.
+     */
+    public function setOnCompleteCallback(callable $onCompleteCallback) {
+        $this->onCompleteCallback = $onCompleteCallback;
+        return $this;
+    }
+
+    /**
+     * Returns the callback to execute on completing the request.
+     * @return callable
+     */
+    public function getOnCompleteCallback() {
+        return $this->onCompleteCallback;
+    }
+
+    /**
+     * Sets the cUrl instance used for executing the request.
+     * @param \BluePsyduck\MultiCurl\Wrapper\Curl $curl
+     * @return $this Implementing fluent interface.
+     */
+    public function setCurl(Curl $curl) {
+        $this->curl = $curl;
+        return $this;
+    }
+
+    /**
+     * Returns the cUrl instance used for executing the request.
+     * @return \BluePsyduck\MultiCurl\Wrapper\Curl
+     */
+    public function getCurl() {
+        return $this->curl;
+    }
+
+    /**
+     * Sets the response entity, available once the request has been completed.
+     * @param \BluePsyduck\MultiCurl\Entity\Response $response
+     * @return $this Implementing fluent interface.
+     */
+    public function setResponse(Response $response) {
+        $this->response = $response;
+        return $this;
+    }
+
+    /**
+     * Returns the response entity, available once the request has been completed.
+     * @return \BluePsyduck\MultiCurl\Entity\Response
+     */
+    public function getResponse() {
+        return $this->response;
     }
 }

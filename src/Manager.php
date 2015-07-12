@@ -15,75 +15,45 @@ use BluePsyduck\MultiCurl\Wrapper\MultiCurl;
 
 class Manager {
     /**
-     * Thr requests to execute.
-     * @var array|\BluePsyduck\MultiCurl\Entity\Request[]
-     */
-    protected $requests = array();
-
-    /**
-     * The cUrl instances.
-     * @var array|\BluePsyduck\MultiCurl\Wrapper\Curl[]
-     */
-    protected $curls = array();
-
-    /**
-     * The responses.
-     * @var array|\BluePsyduck\MultiCurl\Entity\Response[]
-     */
-    protected $responses = array();
-
-    /**
      * The multi cUrl instance.
      * @var \BluePsyduck\MultiCurl\Wrapper\MultiCurl
      */
     protected $multiCurl;
 
     /**
-     * Adds a request to the MultiCurl manager.
-     * @param string $name A name to identify the request.
-     * @param \BluePsyduck\MultiCurl\Entity\Request $request
-     * @return $this Implementing fluent interface.
+     * Thr requests to execute.
+     * @var array|\BluePsyduck\MultiCurl\Entity\Request[]
      */
-    public function addRequest($name, Request $request) {
-        $this->requests[$name] = $request;
-        return $this;
-    }
+    protected $requests = array();
 
     /**
-     * Executes all the requests. This method may return before all requests have been finished.
-     * @return $this Implementing fluent interface.
+     * Initializes the manager.
      */
-    public function execute() {
+    public function __construct() {
         $this->multiCurl = new MultiCurl();
-        $this->curls = $this->initializeMultiCurl($this->requests, $this->multiCurl);
-        $this->start();
+    }
+
+    /**
+     * Adds a request to the MultiCurl manager.
+     * @param \BluePsyduck\MultiCurl\Entity\Request $request
+     * @return $this Implementing fluent interface.
+     */
+    public function addRequest(Request $request) {
+        $curl = new Curl();
+        $this->hydrateCurlFromRequest($curl, $request);
+        $this->multiCurl->addCurl($curl);
+        $request->setCurl($curl);
+        $this->requests[] = $request;
         return $this;
     }
 
     /**
-     * Initializes the MultiCurl request.
-     * @param array|\BluePsyduck\MultiCurl\Entity\Request[] $requests
-     * @param \BluePsyduck\MultiCurl\Wrapper\MultiCurl $multiCurl
-     * @return array|\BluePsyduck\MultiCurl\Wrapper\Curl[] The curl instances created during initialization.
-     */
-    protected function initializeMultiCurl(array $requests, MultiCurl $multiCurl) {
-        $result = array();
-        foreach ($requests as $name => $request) {
-            $curl = new Curl();
-            $this->initializeCurlForRequest($request, $curl);
-            $result[$name] = $curl;
-            $multiCurl->addCurl($curl);
-        }
-        return $result;
-    }
-
-    /**
-     * Initializes the CURL for the specified request.
-     * @param \BluePsyduck\MultiCurl\Entity\Request $request
+     * Hydrates the cURL instance with the data from the specified request.
      * @param \BluePsyduck\MultiCurl\Wrapper\Curl $curl
+     * @param \BluePsyduck\MultiCurl\Entity\Request $request
      * @return $this Implementing fluent interface.
      */
-    protected function initializeCurlForRequest(Request $request, Curl $curl) {
+    protected function hydrateCurlFromRequest(Curl $curl, Request $request) {
         if ($request->getMethod() === Request::METHOD_POST) {
             $curl->setOption(CURLOPT_POST, true)
                  ->setOption(CURLOPT_POSTFIELDS, $request->getRequestData());
@@ -110,12 +80,13 @@ class Manager {
     }
 
     /**
-     * Starts executing the requests.
+     * Executes the requests.
      * @return $this Implementing fluent interface.
      */
-    protected function start() {
+    public function execute() {
         do {
             $this->multiCurl->execute();
+            $this->checkStatusMessages();
         } while ($this->multiCurl->getCurrentExecutionCode() === CURLM_CALL_MULTI_PERFORM);
         return $this;
     }
@@ -130,50 +101,81 @@ class Manager {
             && $this->multiCurl->getCurrentExecutionCode() === CURLM_OK
         ) {
             if ($this->multiCurl->select() != -1) {
-                $this->start();
+                $this->execute();
             }
         }
         return $this;
     }
 
     /**
-     * Returns the response of the specified request.
-     * @param string $name The name of the request.
-     * @return \BluePsyduck\MultiCurl\Entity\Response|null
+     * Checks for any waiting status messages of the cURL requests.
+     * @return $this
      */
-    public function getResponse($name) {
-        $response = null;
-        if (array_key_exists($name, $this->responses)) {
-            $response = $this->responses[$name];
-        } elseif (array_key_exists($name, $this->requests)) {
-            $response = $this->parseResponse($name);
-            $this->responses[$name] = $response;
+    protected function checkStatusMessages() {
+        while (($message = $this->multiCurl->readInfo()) !== false) {
+            $request = $this->findRequestToCurlHandle($message['handle']);
+            if ($request instanceof Request) {
+                $request->setResponse($this->createResponse($message['result'], $request));
+            }
         }
+        return $this;
+    }
+
+    /**
+     * Searches for the request instance with the specified cURL handle.
+     * @param resource $handle
+     * @return \BluePsyduck\MultiCurl\Entity\Request|null
+     */
+    protected function findRequestToCurlHandle($handle) {
+        $result = null;
+        foreach ($this->requests as $request) {
+            if ($request->getCurl()->getHandle() === $handle) {
+                $result = $request;
+                break;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Creates the response of the specified request.
+     * @param int $statusCode
+     * @param \BluePsyduck\MultiCurl\Entity\Request $request
+     * @return \BluePsyduck\MultiCurl\Entity\Response
+     */
+    protected function createResponse($statusCode, Request $request) {
+        $response = new Response();
+        $response->setErrorCode($statusCode)
+                 ->setErrorMessage($request->getCurl()->getErrorMessage());
+
+        if ($statusCode === CURLE_OK) {
+            $this->hydrateResponse($response, $request);
+        }
+
+        if (is_callable($request->getOnCompleteCallback())) {
+            call_user_func($request->getOnCompleteCallback(), $request);
+        }
+        $this->multiCurl->removeCurl($request->getCurl());
         return $response;
     }
 
     /**
-     * Parses the response of the request with the specified name.
-     * @param string $name
-     * @return \BluePsyduck\MultiCurl\Entity\Response|null
+     * Hydrates the data from the executed request into the response instance.
+     * @param \BluePsyduck\MultiCurl\Entity\Response $response
+     * @param \BluePsyduck\MultiCurl\Entity\Request $request
+     * @return $this
      */
-    protected function parseResponse($name) {
-        $result = null;
-        if (array_key_exists($name, $this->curls)) {
-            $curl = $this->curls[$name];
+    protected function hydrateResponse(Response $response, Request $request) {
+        $curl = $request->getCurl();
 
-            $headerSize = $curl->getInfo(CURLINFO_HEADER_SIZE);
-            $rawContent = $this->multiCurl->getContent($curl);
+        $headerSize = $curl->getInfo(CURLINFO_HEADER_SIZE);
+        $rawContent = $this->multiCurl->getContent($curl);
 
-            $result = new Response();
-            $result->setStatusCode($curl->getInfo(CURLINFO_HTTP_CODE))
-                   ->setHeaders($this->parseHeaders(substr($rawContent, 0, $headerSize)))
-                   ->setContent(substr($rawContent, $headerSize));
+        $response->setStatusCode($curl->getInfo(CURLINFO_HTTP_CODE))
+                 ->setHeaders($this->parseHeaders(substr($rawContent, 0, $headerSize)))
+                 ->setContent(substr($rawContent, $headerSize));
 
-            $this->multiCurl->removeCurl($curl);
-            unset($this->curls[$name]);
-        }
-        return $result;
+        return $this;
     }
 
     /**
