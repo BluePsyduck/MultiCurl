@@ -7,18 +7,19 @@ This library helps with creating and executing multiple requests simultaneously 
 
 ### Usage
 
-The main class of the lib is the `Manager`, to which you can add as many requests as you like and which will execute 
-them. For each request to be started, create an instance of the `Entity\Request` class and set its properties as 
-required, and add it to the manager using `->addRequest($name, $request)`. The name you specify for the request is used 
-later for retrieving the response.
+The main class of the library is the `Manager`, to which you can add as many requests as you like and which will execute
+them. For each request to be started, create an instance of the `Entity\Request` class and set its properties as
+required, and add it to the manager using `$manager->addRequest($request)`.
 
-Once all requests are added, call `->execute()` on the manager once. You may now do something else to span the delay 
-the requests may have, or you may directly call `->waitForRequests()` to delay script execution as long as not all
-requests have been finished.
+To any moment, you may want to call `$manager->execute()` of the manager. This will start any not yet started requests,
+and will check all already running requests if any of them has finished. This method will return immediately, and will
+not wait for the requests to be finished. If you want to wait for all requests to be finished, call
+`$manager->waitForRequests()`.
 
-At the end, get the responses of the requests by calling `->getResponse($name)` and specifying the name of the request.
-Before accessing any of the responses, make sure `->waitForRequests()` has been called, as otherwise the response may
-not be available yet.
+Once a request is finished, use `$request->getResponse()` to get the information of the response. You may want to check
+`$response->getErrorCode()` and `$response->getErrorMessage()` to get any information in case the request has failed.
+It is possible to add a callback to the request using `$request->setOnCompleteCallback($callback)`. This method will be
+executed as soon as the manager recognizes the request to be finished.
 
 ### Example
 
@@ -30,25 +31,29 @@ Here is a full example demonstrating the use of the manager:
 use BluePsyduck\MultiCurl\Manager;
 use BluePsyduck\MultiCurl\Entity\Request;
 
+$manager = new Manager();
+
 $requestFoo = new Request();
 $requestFoo->setUrl('http://localhost/data.php?action=foo');
+$manager->addRequest($foo)
+        ->execute(); // Already start the first request.
 
 $requestBar = new Request();
 $requestBar->setUrl('http://localhost/data.php?action=bar');
 
-$manager = new Manager();
-$manager->addRequest('foo', $requestFoo)
-        ->addRequest('bar', $requestBar);
+$manager->addRequest($requestBar)
+        ->execute(); // Start the second request. First request will be checked if finished.
 
-$manager->execute()
-        ->waitForRequests();
+// Some other code.
 
-$responseFoo = $manager->getResponse('foo');
-$responseBar = $manager->getResponse('bar');
+$manager->waitForRequests(); // Will wait for both requests to be finished.
+
+// Do something with the responses
+var_dump($requestFoo->getResponse());
+var_dump($requestBar->getResponse());
 ```
 
 ### Notes
 
-* As all requests are executed simultaneously, pay attention to how many requests you add to the manager. 
-* When creating a new request, use a new instance of the manager and do not re-use an existing one, as this may lead
-  to unwanted results.
+* The manager will not limit the number of currently running requests, so make sure to not add too many requests at
+  once.
