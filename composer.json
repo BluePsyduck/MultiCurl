@@ -20,7 +20,11 @@
     },
     "autoload": {
         "psr-4": {
-            "BluePsyduck\\MultiCurl\\": "src/",
+            "BluePsyduck\\MultiCurl\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
             "BluePsyduckTests\\MultiCurl\\": "tests/"
         }
     }

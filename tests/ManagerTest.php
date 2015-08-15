@@ -193,7 +193,7 @@ class ManagerTest extends TestCase {
                     array('select', -1),
                     array('getStillRunningRequests', 0),
                 ),
-                0
+                1
             ),
             array(
                 array(
@@ -222,11 +222,11 @@ class ManagerTest extends TestCase {
     /**
      * Tests the waitForRequests() method.
      * @param array $multiCurlInvocations The invocations of the MultiCurl wrapper.
-     * @param int $expectedStartCount The number of times to expect start() to be called.
+     * @param int $expectedExecuteCount The number of times to expect start() to be called.
      * @covers \BluePsyduck\MultiCurl\Manager::waitForRequests
      * @dataProvider provideWaitForRequests
      */
-    public function testWaitForRequests(array $multiCurlInvocations, $expectedStartCount) {
+    public function testWaitForRequests(array $multiCurlInvocations, $expectedExecuteCount) {
         /* @var $multiCurl \BluePsyduck\MultiCurl\Wrapper\MultiCurl|\PHPUnit_Framework_MockObject_MockObject */
         $multiCurl = $this->getMockBuilder('BluePsyduck\MultiCurl\Wrapper\MultiCurl')
                           ->setMethods(array(
@@ -246,7 +246,7 @@ class ManagerTest extends TestCase {
         $manager = $this->getMockBuilder('BluePsyduck\MultiCurl\Manager')
                         ->setMethods(array('execute'))
                         ->getMock();
-        $manager->expects($this->exactly($expectedStartCount))
+        $manager->expects($this->exactly($expectedExecuteCount))
                 ->method('execute');
         $this->injectProperty($manager, 'multiCurl', $multiCurl);
 

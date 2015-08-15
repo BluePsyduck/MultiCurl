@@ -100,9 +100,8 @@ class Manager {
         while ($this->multiCurl->getStillRunningRequests() > 0
             && $this->multiCurl->getCurrentExecutionCode() === CURLM_OK
         ) {
-            if ($this->multiCurl->select() != -1) {
-                $this->execute();
-            }
+            $this->multiCurl->select();
+            $this->execute();
         }
         return $this;
     }
