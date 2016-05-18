@@ -185,7 +185,7 @@ class Manager {
      */
     protected function parseHeaders($headerString) {
         $result = new Collection();
-        foreach (explode("\r\n\r\n", $headerString) as $responseHeader) {
+        foreach (array_filter(explode("\r\n\r\n", $headerString)) as $responseHeader) {
             $header = new Collection();
             foreach (explode("\r\n", $responseHeader) as $headerLine) {
                 $parts = explode(':', $headerLine, 2);

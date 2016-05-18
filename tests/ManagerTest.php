@@ -490,7 +490,7 @@ class ManagerTest extends TestCase {
      */
     public function testParseHeaders() {
         $headerString = "HTTP/1.1 301 FOUND\r\nLocation: http://www.example.com/\r\n\r\n"
-            . "HTTP/1.1 200 OK\r\nContent-Type: Foo\r\nabc:def";
+            . "HTTP/1.1 200 OK\r\nContent-Type: Foo\r\nabc:def\r\n\r\n";
 
         $expectedResult = new Collection(array(
             new Collection(array('Content-Type' => 'Foo', 'abc' => 'def')),
