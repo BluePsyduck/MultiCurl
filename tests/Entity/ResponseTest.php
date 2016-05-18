@@ -15,7 +15,7 @@ use BluePsyduckTests\MultiCurl\Assets\TestCase;
 class ResponseTest extends TestCase {
     /**
      * Tests the __construct() method.
-     * @covers ::__construct
+     * @covers \BluePsyduck\MultiCurl\Entity\Response::__construct
      */
     public function testConstruct() {
         $response = new Response();
@@ -120,7 +120,7 @@ class ResponseTest extends TestCase {
 
     /**
      * Tests the getLastHeader() method.
-     * @covers ::getLastHeader
+     * @covers \BluePsyduck\MultiCurl\Entity\Response::getLastHeader
      */
     public function testGetLastHeader() {
         $lastHeader = new Collection(array('abc' => 'def'));

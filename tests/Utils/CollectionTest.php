@@ -4,7 +4,6 @@
  *
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-2.0 GPL v2
- * @coversDefaultClass BluePsyduck\MultiCurl\Utils\Collection
  */
 
 namespace BluePsyduckTests\MultiCurl\Utils;
@@ -36,7 +35,7 @@ class CollectionTest extends TestCase {
 
     /**
      * Tests the __construct() method.
-     * @covers ::__construct
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::__construct
      */
     public function testConstruct() {
         $items = array('abc' => 'def');
@@ -70,7 +69,7 @@ class CollectionTest extends TestCase {
      * @param array $expectedItems The expected items.
      * @param array $items The items to set.
      * @param int $value The value to use.
-     * @covers ::add
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::add
      * @dataProvider provideAdd
      */
     public function testAdd($expectedItems, $items, $value) {
@@ -104,7 +103,7 @@ class CollectionTest extends TestCase {
      * @param array $items The items to set.
      * @param string $name The name to use.
      * @param mixed $value The value to use.
-     * @covers ::set
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::set
      * @dataProvider provideSet
      */
     public function testSet($expectedItems, $expectedIsDirty, $resultHas, $resultGet, $items, $name, $value) {
@@ -147,7 +146,7 @@ class CollectionTest extends TestCase {
      * @param array $items The items to set.
      * @param string $name The name to use.
      * @param mixed $default The default to use.
-     * @covers ::get
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::get
      * @dataProvider provideGet
      */
     public function testGet($expectedResult, $resultHas, $items, $name, $default) {
@@ -182,7 +181,7 @@ class CollectionTest extends TestCase {
      * @param bool $expectedResult The expected result.
      * @param array $items The items to set.
      * @param string $name The name to use.
-     * @covers ::has
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::has
      * @dataProvider provideHas
      */
     public function testHas($expectedResult, $items, $name) {
@@ -209,7 +208,7 @@ class CollectionTest extends TestCase {
      * @param bool $expectedIsDirty The expected isDirty flag.
      * @param array $items The items to set.
      * @param string $name The name to use.
-     * @covers ::remove
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::remove
      * @dataProvider provideRemove
      */
     public function testRemove($expectedItems, $expectedIsDirty, $items, $name) {
@@ -225,7 +224,7 @@ class CollectionTest extends TestCase {
 
     /**
      * Tests the extract() method.
-     * @covers ::extract
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::extract
      */
     public function testExtract() {
         $name = 'abc';
@@ -264,7 +263,7 @@ class CollectionTest extends TestCase {
      * Tests the count() method.
      * @param int $expectedResult The expected result.
      * @param array $items The items to set.
-     * @covers ::count
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::count
      * @dataProvider provideCount
      */
     public function testCount($expectedResult, $items) {
@@ -290,7 +289,7 @@ class CollectionTest extends TestCase {
      * Tests the isEmpty() method.
      * @param boolean $expectedResult The expected result.
      * @param array $items The items.
-     * @covers ::isEmpty
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::isEmpty
      * @dataProvider provideIsEmpty
      */
     public function testIsEmpty($expectedResult, $items) {
@@ -302,7 +301,7 @@ class CollectionTest extends TestCase {
 
     /**
      * Tests the clear() method.
-     * @covers ::clear
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::clear
      */
     public function testClear() {
         $collection = new Collection();
@@ -315,7 +314,7 @@ class CollectionTest extends TestCase {
 
     /**
      * Tests the push() method.
-     * @covers ::push
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::push
      */
     public function testPush() {
         $collection = new Collection();
@@ -343,7 +342,7 @@ class CollectionTest extends TestCase {
      * @param bool $expectedIsDirty The expected isDirty flag.
      * @param bool $resultEmpty The result of the isEmpty() method call.
      * @param array $items The items to set.
-     * @covers ::pop
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::pop
      * @dataProvider providePop
      */
     public function testPop($expectedResult, $expectedItems, $expectedIsDirty, $resultEmpty, $items) {
@@ -379,7 +378,7 @@ class CollectionTest extends TestCase {
      * @param mixed $expectedResult The expected result.
      * @param bool $resultEmpty The result of the isEmpty() method call.
      * @param array $items The items to set.
-     * @covers ::top
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::top
      * @dataProvider provideTop
      */
     public function testTop($expectedResult, $resultEmpty, $items) {
@@ -398,7 +397,7 @@ class CollectionTest extends TestCase {
 
     /**
      * Tests the enqueue() method.
-     * @covers ::enqueue
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::enqueue
      */
     public function testEnqueue() {
         $collection = new Collection();
@@ -410,7 +409,7 @@ class CollectionTest extends TestCase {
 
     /**
      * Tests the dequeue() method.
-     * @covers ::dequeue
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::dequeue
      */
     public function testDequeue() {
         $expectedResult = 'abc';
@@ -429,7 +428,7 @@ class CollectionTest extends TestCase {
 
     /**
      * Tests the getIterator() method.
-     * @covers ::getIterator
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::getIterator
      */
     public function testGetIterator() {
         $collection = new Collection();
@@ -439,7 +438,7 @@ class CollectionTest extends TestCase {
 
     /**
      * Tests the toArray() method.
-     * @covers ::toArray
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::toArray
      */
     public function testToArray() {
         $expected = array('abc', 'def');
@@ -451,7 +450,7 @@ class CollectionTest extends TestCase {
 
     /**
      * Tests the getKeys() method.
-     * @covers ::getKeys
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::getKeys
      */
     public function testGetKeys() {
         $items = array('abc' => 'def', 'ghi' => 'jkl');
@@ -466,7 +465,7 @@ class CollectionTest extends TestCase {
 
     /**
      * Tests the getValues() method.
-     * @covers ::getValues
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::getValues
      */
     public function testGetValues() {
         $items = array('abc' => 'def', 'ghi' => 'jkl');
@@ -499,7 +498,7 @@ class CollectionTest extends TestCase {
      * @param array $expectedItems The expected items.
      * @param array $items The items to set.
      * @param mixed $itemsToMerge The items to use.
-     * @covers ::merge
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::merge
      * @dataProvider provideMerge
      */
     public function testMerge($expectedItems, $items, $itemsToMerge) {
@@ -513,7 +512,7 @@ class CollectionTest extends TestCase {
 
     /**
      * Tests the reverse() method.
-     * @covers ::reverse
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::reverse
      */
     public function testReverse() {
         $items = array('abc' => 'def', 'ghi' => 'jkl');
@@ -528,7 +527,7 @@ class CollectionTest extends TestCase {
 
     /**
      * Tests the setIsDirty() method.
-     * @covers ::setIsDirty
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::setIsDirty
      */
     public function testSetIsDirty() {
         $expected = true;
@@ -540,7 +539,7 @@ class CollectionTest extends TestCase {
 
     /**
      * Tests the isDirty() method.
-     * @covers ::isDirty
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::isDirty
      */
     public function testIsDirty() {
         $expected = true;
@@ -552,7 +551,7 @@ class CollectionTest extends TestCase {
 
     /**
      * Tests the offsetSet() method.
-     * @covers ::offsetSet
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::offsetSet
      */
     public function testOffsetSet() {
         $name = 'abc';
@@ -570,7 +569,7 @@ class CollectionTest extends TestCase {
 
     /**
      * Tests the offsetGet() method.
-     * @covers ::offsetGet
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::offsetGet
      */
     public function testOffsetGet() {
         $name = 'abc';
@@ -589,7 +588,7 @@ class CollectionTest extends TestCase {
 
     /**
      * Tests the offsetExists() method.
-     * @covers ::offsetExists
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::offsetExists
      */
     public function testOffsetExists() {
         $name = 'abc';
@@ -608,7 +607,7 @@ class CollectionTest extends TestCase {
 
     /**
      * Tests the offsetUnset() method.
-     * @covers ::offsetUnset
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::offsetUnset
      */
     public function testOffsetUnset() {
         $name = 'abc';
@@ -626,7 +625,7 @@ class CollectionTest extends TestCase {
 
     /**
      * Tests the __set() method.
-     * @covers ::__set
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::__set
      */
     public function testMagicSet() {
         $name = 'abc';
@@ -644,7 +643,7 @@ class CollectionTest extends TestCase {
 
     /**
      * Tests the __get() method.
-     * @covers ::__get
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::__get
      */
     public function testMagicGet() {
         $name = 'abc';
@@ -663,7 +662,7 @@ class CollectionTest extends TestCase {
 
     /**
      * Tests the __isset() method.
-     * @covers ::__isset
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::__isset
      */
     public function testMagicIsset() {
         $name = 'abc';
@@ -682,7 +681,7 @@ class CollectionTest extends TestCase {
 
     /**
      * Tests the __unset() method.
-     * @covers ::__unset
+     * @covers \BluePsyduck\MultiCurl\Utils\Collection::__unset
      */
     public function testMagicUnset() {
         $name = 'abc';
