@@ -9,6 +9,8 @@
 
 namespace BluePsyduck\MultiCurl\Entity;
 
+use BluePsyduck\MultiCurl\Utils\Collection;
+
 class Response {
     /**
      * The cUrl error code in case an error occurred while executing the request.
@@ -30,15 +32,22 @@ class Response {
 
     /**
      * The headers of the response.
-     * @var array
+     * @var \BluePsyduck\MultiCurl\Utils\Collection
      */
-    protected $headers = array();
+    protected $headers;
 
     /**
      * The content of the response.
      * @var string
      */
     protected $content = '';
+
+    /**
+     * Initializes the response.
+     */
+    public function __construct() {
+        $this->headers = new Collection();
+    }
 
     /**
      * Returns the cUrl error code in case an error occurred while executing the request.
@@ -95,20 +104,28 @@ class Response {
 
     /**
      * Sets the headers of the response.
-     * @param array $headers
+     * @param \BluePsyduck\MultiCurl\Utils\Collection $headers
      * @return $this Implementing fluent interface.
      */
-    public function setHeaders(array $headers) {
+    public function setHeaders(Collection $headers) {
         $this->headers = $headers;
         return $this;
     }
 
     /**
      * Returns the headers of the response.
-     * @return array
+     * @return \BluePsyduck\MultiCurl\Utils\Collection
      */
     public function getHeaders() {
         return $this->headers;
+    }
+
+    /**
+     * Returns the header of the last redirect of the request.
+     * @return \BluePsyduck\MultiCurl\Utils\Collection|null
+     */
+    public function getLastHeader() {
+        return $this->headers->top();
     }
 
     /**

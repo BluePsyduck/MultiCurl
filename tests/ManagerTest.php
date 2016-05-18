@@ -5,6 +5,7 @@ namespace BluePsyduckTests\MultiCurl;
 use BluePsyduck\MultiCurl\Entity\Request;
 use BluePsyduck\MultiCurl\Entity\Response;
 use BluePsyduck\MultiCurl\Manager;
+use BluePsyduck\MultiCurl\Utils\Collection;
 use BluePsyduck\MultiCurl\Wrapper\Curl;
 use BluePsyduckTests\MultiCurl\Assets\TestCase;
 
@@ -23,7 +24,7 @@ class ManagerTest extends TestCase {
         $manager = new Manager();
         $this->assertPropertyInstanceOf('BluePsyduck\MultiCurl\Wrapper\MultiCurl', $manager, 'multiCurl');
     }
-    
+
     /**
      * Tests the addRequest() method.
      * @covers \BluePsyduck\MultiCurl\Manager::addRequest
@@ -253,7 +254,7 @@ class ManagerTest extends TestCase {
         $result = $manager->waitForRequests();
         $this->assertEquals($manager, $result);
     }
-    
+
     /**
      * Tests the checkStatusMessages() method.
      * @covers \BluePsyduck\MultiCurl\Manager::checkStatusMessages
@@ -415,7 +416,7 @@ class ManagerTest extends TestCase {
         $this->assertEquals($expectedErrorCode, $result->getErrorCode());
         $this->assertEquals($expectedErrorMessage, $result->getErrorMessage());
     }
-    
+
     /**
      * Tests the hydrateResponse() method.
      * @covers \BluePsyduck\MultiCurl\Manager::hydrateResponse
@@ -423,7 +424,7 @@ class ManagerTest extends TestCase {
     public function testParseResponse() {
         $rawContent = 'abcdef';
         $rawHeader = 'abc';
-        $headers = array('abc');
+        $headers = new Collection(array('abc' => 'def'));
         $content = 'def';
         $statusCode = 42;
 
@@ -488,11 +489,13 @@ class ManagerTest extends TestCase {
      * @covers \BluePsyduck\MultiCurl\Manager::parseHeaders
      */
     public function testParseHeaders() {
-        $headerString = "HTTP/1.1 200 OK\r\nContent-Type: Foo\r\nabc:def";
-        $expectedResult = array(
-            'Content-Type' => 'Foo',
-            'abc' => 'def'
-        );
+        $headerString = "HTTP/1.1 301 FOUND\r\nLocation: http://www.example.com/\r\n\r\n"
+            . "HTTP/1.1 200 OK\r\nContent-Type: Foo\r\nabc:def";
+
+        $expectedResult = new Collection(array(
+            new Collection(array('Content-Type' => 'Foo', 'abc' => 'def')),
+            new Collection(array('Location' => 'http://www.example.com/'))
+        ));
 
         $manager = new Manager();
         $result = $this->invokeMethod($manager, 'parseHeaders', array($headerString));

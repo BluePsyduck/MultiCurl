@@ -3,6 +3,7 @@
 namespace BluePsyduckTests\MultiCurl\Entity;
 
 use BluePsyduck\MultiCurl\Entity\Response;
+use BluePsyduck\MultiCurl\Utils\Collection;
 use BluePsyduckTests\MultiCurl\Assets\TestCase;
 
 /**
@@ -12,6 +13,15 @@ use BluePsyduckTests\MultiCurl\Assets\TestCase;
  * @license http://opensource.org/licenses/GPL-2.0 GPL v2
  */
 class ResponseTest extends TestCase {
+    /**
+     * Tests the __construct() method.
+     * @covers ::__construct
+     */
+    public function testConstruct() {
+        $response = new Response();
+        $this->assertPropertyInstanceOf('BluePsyduck\MultiCurl\Utils\Collection', $response, 'headers');
+    }
+
     /**
      * Tests the setErrorCode() method.
      * @covers \BluePsyduck\MultiCurl\Entity\Response::setErrorCode
@@ -71,7 +81,7 @@ class ResponseTest extends TestCase {
         $this->assertEquals($response, $result);
         $this->assertPropertyEquals($expected, $response, 'statusCode');
     }
-    
+
     /**
      * Tests the getStatusCode() method.
      * @covers \BluePsyduck\MultiCurl\Entity\Response::getStatusCode
@@ -83,31 +93,45 @@ class ResponseTest extends TestCase {
         $result = $response->getStatusCode();
         $this->assertEquals($expected, $result);
     }
-    
+
     /**
      * Tests the setHeaders() method.
      * @covers \BluePsyduck\MultiCurl\Entity\Response::setHeaders
      */
     public function testSetHeaders() {
-        $expected = array('abc' => 'def');
+        $expected = new Collection(array('abc' => 'def'));
         $response = new Response();
         $result = $response->setHeaders($expected);
         $this->assertEquals($response, $result);
         $this->assertPropertyEquals($expected, $response, 'headers');
     }
-    
+
     /**
      * Tests the getHeaders() method.
      * @covers \BluePsyduck\MultiCurl\Entity\Response::getHeaders
      */
     public function testGetHeaders() {
-        $expected = array('abc' => 'def');
+        $expected = new Collection(array('abc' => 'def'));
         $response = new Response();
         $this->injectProperty($response, 'headers', $expected);
         $result = $response->getHeaders();
         $this->assertEquals($expected, $result);
     }
-    
+
+    /**
+     * Tests the getLastHeader() method.
+     * @covers ::getLastHeader
+     */
+    public function testGetLastHeader() {
+        $lastHeader = new Collection(array('abc' => 'def'));
+        $headers = new Collection(array($lastHeader, new Collection()));
+
+        $response = new Response();
+        $this->injectProperty($response, 'headers', $headers);
+        $result = $response->getLastHeader();
+        $this->assertEquals($lastHeader, $result);
+    }
+
     /**
      * Tests the setContent() method.
      * @covers \BluePsyduck\MultiCurl\Entity\Response::setContent
@@ -119,7 +143,7 @@ class ResponseTest extends TestCase {
         $this->assertEquals($response, $result);
         $this->assertPropertyEquals($expected, $response, 'content');
     }
-    
+
     /**
      * Tests the getContent() method.
      * @covers \BluePsyduck\MultiCurl\Entity\Response::getContent

@@ -10,6 +10,7 @@ namespace BluePsyduck\MultiCurl;
 
 use BluePsyduck\MultiCurl\Entity\Request;
 use BluePsyduck\MultiCurl\Entity\Response;
+use BluePsyduck\MultiCurl\Utils\Collection;
 use BluePsyduck\MultiCurl\Wrapper\Curl;
 use BluePsyduck\MultiCurl\Wrapper\MultiCurl;
 
@@ -180,15 +181,19 @@ class Manager {
     /**
      * Parses the header string into an associative array.
      * @param string $headerString
-     * @return array
+     * @return \BluePsyduck\MultiCurl\Utils\Collection
      */
     protected function parseHeaders($headerString) {
-        $result = array();
-        foreach (explode("\r\n", $headerString) as $line) {
-            $parts = explode(':', $line, 2);
-            if (count($parts) === 2) {
-                $result[trim($parts[0])] = trim($parts[1]);
+        $result = new Collection();
+        foreach (explode("\r\n\r\n", $headerString) as $responseHeader) {
+            $header = new Collection();
+            foreach (explode("\r\n", $responseHeader) as $headerLine) {
+                $parts = explode(':', $headerLine, 2);
+                if (count($parts) === 2) {
+                    $header->set(trim($parts[0]), trim($parts[1]));
+                }
             }
+            $result->push($header);
         }
         return $result;
     }
