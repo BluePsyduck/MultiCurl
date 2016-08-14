@@ -97,8 +97,34 @@ class Manager {
      * Delays the script execution until all requests have been finished.
      * @return $this Implementing fluent interface.
      */
-    public function waitForRequests() {
+    public function waitForAllRequests() {
         while ($this->multiCurl->getStillRunningRequests() > 0
+            && $this->multiCurl->getCurrentExecutionCode() === CURLM_OK
+        ) {
+            $this->multiCurl->select();
+            $this->execute();
+        }
+        return $this;
+    }
+
+    /**
+     * Delays the script execution until all requests have been finished.
+     * @deprecated Use waitForAllRequests() instead.
+     * @return $this Implementing fluent interface.
+     */
+    public function waitForRequests() {
+        $this->waitForAllRequests();
+        return $this;
+    }
+
+    /**
+     * Delays the script execution until at least the specified request has been finished.
+     * @param \BluePsyduck\MultiCurl\Entity\Request $request
+     * @return $this Implementing fluent interface.
+     */
+    public function waitForSingleRequest(Request $request) {
+        while (is_null($request->getResponse())
+            && $this->multiCurl->getStillRunningRequests() > 0
             && $this->multiCurl->getCurrentExecutionCode() === CURLM_OK
         ) {
             $this->multiCurl->select();

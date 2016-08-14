@@ -169,10 +169,10 @@ class ManagerTest extends TestCase {
     }
 
     /**
-     * Provides the data for the waitForRequests() test.
+     * Provides the data for the waitForAllRequests() test.
      * @return array The data.
      */
-    public function provideWaitForRequests() {
+    public function provideWaitForAllRequests() {
         return array(
             array(
                 array(
@@ -221,13 +221,13 @@ class ManagerTest extends TestCase {
     }
 
     /**
-     * Tests the waitForRequests() method.
+     * Tests the waitForAllRequests() method.
      * @param array $multiCurlInvocations The invocations of the MultiCurl wrapper.
      * @param int $expectedExecuteCount The number of times to expect start() to be called.
-     * @covers \BluePsyduck\MultiCurl\Manager::waitForRequests
-     * @dataProvider provideWaitForRequests
+     * @covers \BluePsyduck\MultiCurl\Manager::waitForAllRequests
+     * @dataProvider provideWaitForAllRequests
      */
-    public function testWaitForRequests(array $multiCurlInvocations, $expectedExecuteCount) {
+    public function testWaitForAllRequests(array $multiCurlInvocations, $expectedExecuteCount) {
         /* @var $multiCurl \BluePsyduck\MultiCurl\Wrapper\MultiCurl|\PHPUnit_Framework_MockObject_MockObject */
         $multiCurl = $this->getMockBuilder('BluePsyduck\MultiCurl\Wrapper\MultiCurl')
                           ->setMethods(array(
@@ -251,7 +251,179 @@ class ManagerTest extends TestCase {
                 ->method('execute');
         $this->injectProperty($manager, 'multiCurl', $multiCurl);
 
+        $result = $manager->waitForAllRequests();
+        $this->assertEquals($manager, $result);
+    }
+
+    /**
+     * Tests the waitForRequests() method.
+     * @covers \BluePsyduck\MultiCurl\Manager::waitForRequests
+     */
+    public function testWaitForRequests() {
+        /* @var $manager \BluePsyduck\MultiCurl\Manager|\PHPUnit_Framework_MockObject_MockObject */
+        $manager = $this->getMockBuilder('BluePsyduck\MultiCurl\Manager')
+                        ->setMethods(array('waitForAllRequests'))
+                        ->getMock();
+        $manager->expects($this->once())
+                ->method('waitForAllRequests');
+
         $result = $manager->waitForRequests();
+        $this->assertEquals($manager, $result);
+    }
+
+    /**
+     * Provides the data for the waitForSingleRequest() test.
+     * @return array The data.
+     */
+    public function provideWaitForSingleRequest() {
+        $response = new Response();
+        return array(
+            array(
+                array(
+                    array('getResponse', $response)
+                ),
+                array(),
+                0
+            ),
+            array(
+                array(
+                    array('getResponse', null)
+                ),
+                array(
+                    array('getStillRunningRequests', 0)
+                ),
+                0
+            ),
+            array(
+                array(
+                    array('getResponse', null)
+                ),
+                array(
+                    array('getStillRunningRequests', 42),
+                    array('getCurrentExecutionCode', CURLM_BAD_HANDLE)
+                ),
+                0
+            ),
+            array(
+                array(
+                    array('getResponse', null),
+                    array('getResponse', $response)
+                ),
+                array(
+                    array('getStillRunningRequests', 42),
+                    array('getCurrentExecutionCode', CURLM_OK),
+                    array('select', -1)
+                ),
+                1
+            ),
+            array(
+                array(
+                    array('getResponse', null),
+                    array('getResponse', null)
+                ),
+                array(
+                    array('getStillRunningRequests', 42),
+                    array('getCurrentExecutionCode', CURLM_OK),
+                    array('select', -1),
+                    array('getStillRunningRequests', 0)
+                ),
+                1
+            ),
+            array(
+                array(
+                    array('getResponse', null),
+                    array('getResponse', null)
+                ),
+                array(
+                    array('getStillRunningRequests', 42),
+                    array('getCurrentExecutionCode', CURLM_OK),
+                    array('select', 1337),
+                    array('getStillRunningRequests', 0)
+                ),
+                1
+            ),
+            array(
+                array(
+                    array('getResponse', null),
+                    array('getResponse', null),
+                    array('getResponse', $response),
+                ),
+                array(
+                    array('getStillRunningRequests', 42),
+                    array('getCurrentExecutionCode', CURLM_OK),
+                    array('select', 1337),
+                    array('getStillRunningRequests', 42),
+                    array('getCurrentExecutionCode', CURLM_OK),
+                    array('select', 1337),
+                ),
+                2
+            ),
+            array(
+                array(
+                    array('getResponse', null),
+                    array('getResponse', null),
+                    array('getResponse', null),
+                ),
+                array(
+                    array('getStillRunningRequests', 42),
+                    array('getCurrentExecutionCode', CURLM_OK),
+                    array('select', 1337),
+                    array('getStillRunningRequests', 42),
+                    array('getCurrentExecutionCode', CURLM_OK),
+                    array('select', 1337),
+                    array('getStillRunningRequests', 0)
+                ),
+                2
+            )
+        );
+    }
+
+    /**
+     * Tests the waitForSingleRequest() method.
+     * @param array $requestInvocations The invocations of the request instance.
+     * @param array $multiCurlInvocations The invocations of the MultiCurl wrapper.
+     * @param int $expectedExecuteCount The number of times to expect start() to be called.
+     * @covers \BluePsyduck\MultiCurl\Manager::waitForSingleRequest
+     * @dataProvider provideWaitForSingleRequest
+     */
+    public function testWaitForSingleRequest(
+        array $requestInvocations, array $multiCurlInvocations, $expectedExecuteCount
+    ) {
+        /* @var $multiCurl \BluePsyduck\MultiCurl\Wrapper\MultiCurl|\PHPUnit_Framework_MockObject_MockObject */
+        $multiCurl = $this->getMockBuilder('BluePsyduck\MultiCurl\Wrapper\MultiCurl')
+                          ->setMethods(array(
+                              '__construct', '__destruct', 'getStillRunningRequests', 'getCurrentExecutionCode',
+                              'select'
+                          ))
+                          ->disableOriginalConstructor()
+                          ->getMock();
+
+        foreach ($multiCurlInvocations as $index => $invocation) {
+            $multiCurl->expects($this->at($index))
+                      ->method(array_shift($invocation))
+                      ->willReturn(array_shift($invocation));
+        }
+
+        /* @var $request \BluePsyduck\MultiCurl\Entity\Request|\PHPUnit_Framework_MockObject_MockObject */
+        $request = $this->getMockBuilder('BluePsyduck\MultiCurl\Entity\Request')
+                        ->setMethods(array('getResponse'))
+                        ->getMock();
+
+        foreach ($requestInvocations as $index => $invocation) {
+            $request->expects($this->at($index))
+                    ->method(array_shift($invocation))
+                    ->willReturn(array_shift($invocation));
+        }
+
+        /* @var $manager \BluePsyduck\MultiCurl\Manager|\PHPUnit_Framework_MockObject_MockObject */
+        $manager = $this->getMockBuilder('BluePsyduck\MultiCurl\Manager')
+                        ->setMethods(array('execute'))
+                        ->getMock();
+        $manager->expects($this->exactly($expectedExecuteCount))
+                ->method('execute');
+        $this->injectProperty($manager, 'multiCurl', $multiCurl);
+
+        $result = $manager->waitForSingleRequest($request);
         $this->assertEquals($manager, $result);
     }
 
