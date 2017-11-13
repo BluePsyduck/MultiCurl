@@ -46,7 +46,7 @@ $manager->addRequest($requestBar)
 
 // Some other code.
 
-$manager->waitForRequests(); // Will wait for both requests to be finished.
+$manager->waitForAllRequests(); // Will wait for both requests to be finished.
 
 // Do something with the responses
 var_dump($requestFoo->getResponse());
