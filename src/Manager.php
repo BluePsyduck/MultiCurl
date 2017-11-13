@@ -92,6 +92,16 @@ class Manager {
         return $this;
     }
 
+    /**
+     * Adds and executes the specified request.
+     * @param \BluePsyduck\MultiCurl\Entity\Request $request
+     * @return $this
+     */
+    public function executeRequest(Request $request) {
+        $this->addRequest($request)
+             ->execute();
+        return $this;
+    }
 
     /**
      * Delays the script execution until all requests have been finished.
@@ -222,5 +232,19 @@ class Manager {
             $result->push($header);
         }
         return $result;
+    }
+
+    /**
+     * Removes the specified request from the MultiCurl manager. If the request is not yet finished, its response will
+     * no longer be parsed.
+     * @param Request $request
+     * @return $this
+     */
+    public function removeRequest(Request $request) {
+        $index = array_search($request, $this->requests);
+        if ($index !== false) {
+            unset($this->requests[$index]);
+        }
+        return $this;
     }
 }

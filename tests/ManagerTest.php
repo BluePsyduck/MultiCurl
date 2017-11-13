@@ -169,6 +169,30 @@ class ManagerTest extends TestCase {
     }
 
     /**
+     * Tests the executeRequest() method.
+     * @covers \BluePsyduck\MultiCurl\Manager::executeRequest
+     */
+    public function testExecuteRequest() {
+        $request = new Request();
+        $request->setUrl('abc');
+
+        /* @var $manager \BluePsyduck\MultiCurl\Manager|\PHPUnit_Framework_MockObject_MockObject */
+        $manager = $this->getMockBuilder('BluePsyduck\MultiCurl\Manager')
+                        ->setMethods(array('addRequest', 'execute'))
+                        ->getMock();
+        $manager->expects($this->at(0))
+                ->method('addRequest')
+                ->with($request)
+                ->willReturnSelf();
+        $manager->expects($this->at(1))
+                ->method('execute')
+                ->willReturnSelf();
+
+        $result = $manager->executeRequest($request);
+        $this->assertEquals($manager, $result);
+    }
+
+    /**
      * Provides the data for the waitForAllRequests() test.
      * @return array The data.
      */
@@ -672,5 +696,40 @@ class ManagerTest extends TestCase {
         $manager = new Manager();
         $result = $this->invokeMethod($manager, 'parseHeaders', array($headerString));
         $this->assertEquals($expectedResult, $result);
+    }
+
+    /**
+     * Provides the data for the removeRequest() test.
+     * @return array The data.
+     */
+    public function provideRemoveRequest() {
+        $request1 = new Request();
+        $request1->setUrl('abc');
+        $request2 = new Request();
+        $request2->setUrl('def');
+        $request3 = new Request();
+        $request3->setUrl('ghi');
+
+        return array(
+            array(array($request1, $request2), $request2, array($request1)),
+            array(array($request1, $request2), $request3, array($request1, $request2))
+        );
+    }
+
+    /**
+     * Tests the removeRequest() method.
+     * @param array $requests
+     * @param Request $request
+     * @param array $expectedRequests
+     * @covers \BluePsyduck\MultiCurl\Manager::removeRequest
+     * @dataProvider provideRemoveRequest
+     */
+    public function testRemoveRequest($requests, $request, $expectedRequests) {
+        $manager = new Manager();
+        $this->injectProperty($manager, 'requests', $requests);
+
+        $result = $manager->removeRequest($request);
+        $this->assertEquals($manager, $result);
+        $this->assertPropertyEquals($expectedRequests, $manager, 'requests');
     }
 }
