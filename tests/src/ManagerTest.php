@@ -7,7 +7,7 @@ use BluePsyduck\MultiCurl\Entity\Response;
 use BluePsyduck\MultiCurl\Manager;
 use BluePsyduck\MultiCurl\Utils\Collection;
 use BluePsyduck\MultiCurl\Wrapper\Curl;
-use BluePsyduckTests\MultiCurl\Assets\TestCase;
+use BluePsyduckTestAssets\MultiCurl\TestCase;
 
 /**
  * PHPUnit test of the MultiCurl manager.

@@ -10,9 +10,9 @@ namespace BluePsyduckTests\MultiCurl\Utils;
 
 use ArrayIterator;
 use BluePsyduck\MultiCurl\Utils\Collection;
-use BluePsyduckTests\MultiCurl\Assets\TestCase;
+use BluePsyduckTestAssets\MultiCurl\TestCase;
 
-class CollectionTest extends TestCase {
+class BluePsyduckTestAssets extends TestCase {
     /**
      * Injects the items to the collection using reflections.
      * @param \BluePsyduck\MultiCurl\Utils\Collection $collection The collection instance.

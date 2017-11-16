@@ -1,8 +1,8 @@
 <?php
 
-namespace BluePsyduckTests\MultiCurl\Assets;
+namespace BluePsyduckTestAssets\MultiCurl;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase as PHPUnitTestCase;
 
 /**
  * The FunctionMocker is able to mock plain PHP functions.
@@ -12,10 +12,11 @@ use PHPUnit_Framework_TestCase;
  *
  * @author BluePsyduck <bluepsyduck@gmx.com>
  */
-class FunctionMocker {
+class FunctionMocker
+{
     /**
      * The test case instance.
-     * @var \PHPUnit_Framework_TestCase
+     * @var PHPUnitTestCase
      */
     protected $testCase;
 
@@ -45,10 +46,11 @@ class FunctionMocker {
 
     /**
      * Sets the test case instance.
-     * @param \PHPUnit_Framework_TestCase $testCase
+     * @param PHPUnitTestCase $testCase
      * @return $this Implementing fluent interface.
      */
-    public function setTestCase(PHPUnit_Framework_TestCase $testCase) {
+    public function setTestCase(PHPUnitTestCase $testCase)
+    {
         $this->testCase = $testCase;
         return $this;
     }
@@ -58,7 +60,8 @@ class FunctionMocker {
      * @param string $namespace
      * @return $this Implementing fluent interface.
      */
-    public function setNamespace($namespace) {
+    public function setNamespace($namespace)
+    {
         $this->namespace = $namespace;
         return $this;
     }
@@ -68,7 +71,8 @@ class FunctionMocker {
      * @param array $functions
      * @return $this Implementing fluent interface.
      */
-    public function setFunctions($functions) {
+    public function setFunctions($functions)
+    {
         $this->functions = $functions;
         return $this;
     }
@@ -77,7 +81,8 @@ class FunctionMocker {
      * Returns the mock object.
      * @return \PHPUnit_Framework_MockObject_MockObject
      */
-    public function getMock() {
+    public function getMock()
+    {
         $mock = $this->testCase->getMockBuilder('stdClass')
                                ->setMethods($this->functions)
                                ->setMockClassName('BluePsyduckTests_MultiCurl_Assets_FunctionMocker_' . uniqid())
@@ -101,10 +106,11 @@ class FunctionMocker {
      * @param string $function The function name.
      * @return string The PHP code.
      */
-    protected function generateCode($namespace, $function) {
+    protected function generateCode($namespace, $function)
+    {
         return <<<EOT
 namespace $namespace {
-    use BluePsyduckTests\MultiCurl\Assets\FunctionMocker;
+    use BluePsyduckTestAssets\MultiCurl\FunctionMocker;
     function $function() {
         return FunctionMocker::invokeMockedFunction('$namespace', '$function', func_get_args());
     }
@@ -119,10 +125,11 @@ EOT;
      * @param array $parameters The parameters to be passed to the function.
      * @return mixed The result of the function call.
      */
-    public static function invokeMockedFunction($namespace, $function, $parameters = array()) {
+    public static function invokeMockedFunction($namespace, $function, $parameters = array())
+    {
         $callback = null;
         if (isset(self::$currentMocks[$namespace])) {
-            $callback = array(self::$currentMocks[$namespace], $function);
+            $callback = [self::$currentMocks[$namespace], $function];
         }
         if (!is_callable($callback)) {
             $callback = $function;
@@ -133,7 +140,8 @@ EOT;
     /**
      * Resets any saved mocks.
      */
-    public static function resetCurrentMocks() {
-        self::$currentMocks = array();
+    public static function resetCurrentMocks()
+    {
+        self::$currentMocks = [];
     }
 }

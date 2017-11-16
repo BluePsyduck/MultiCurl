@@ -2,23 +2,30 @@
 
 namespace BluePsyduckTests\MultiCurl\Wrapper;
 
-use BluePsyduckTests\MultiCurl\Assets\TestCase;
+use BluePsyduck\MultiCurl\Wrapper\Curl;
+use BluePsyduck\MultiCurl\Wrapper\MultiCurl;
+use BluePsyduckTestAssets\MultiCurl\TestCase;
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 
 /**
  * PHPUnit test of the MultiCurl wrapper.
  *
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-2.0 GPL v2
+ *
+ * @coversDefaultClass \BluePsyduck\MultiCurl\Wrapper\Curl
  */
-class MultiCurlTest extends TestCase {
+class MultiCurlTest extends TestCase
+{
     /**
      * Returns the mocked wrapper.
      * @param mixed $handle The handle to set.
-     * @return \BluePsyduck\MultiCurl\Wrapper\MultiCurl
+     * @return MultiCurl|MockObject
      */
-    protected function getMockedWrapper($handle = null) {
-        $wrapper = $this->getMockBuilder('BluePsyduck\MultiCurl\Wrapper\MultiCurl')
-                        ->setMethods(array('__construct', '__destruct'))
+    protected function getMockedWrapper($handle = null)
+    {
+        $wrapper = $this->getMockBuilder(MultiCurl::class)
+                        ->setMethods(['__construct', '__destruct'])
                         ->disableOriginalConstructor()
                         ->getMock();
         $this->injectProperty($wrapper, 'handle', $handle);
@@ -28,11 +35,12 @@ class MultiCurlTest extends TestCase {
     /**
      * Creates a mocked cUrl wrapper.
      * @param mixed $handle The handle to be returned by the getHandle() method.
-     * @return \BluePsyduck\MultiCurl\Wrapper\Curl|\PHPUnit_Framework_MockObject_MockObject
+     * @return Curl|MockObject
      */
-    protected function getMockedCurl($handle) {
-        $wrapper = $this->getMockBuilder('BluePsyduck\MultiCurl\Wrapper\Curl')
-                        ->setMethods(array('__construct', '__destruct', 'getHandle'))
+    protected function getMockedCurl($handle)
+    {
+        $wrapper = $this->getMockBuilder(Curl::class)
+                        ->setMethods(['__construct', '__destruct', 'getHandle'])
                         ->disableOriginalConstructor()
                         ->getMock();
         $wrapper->expects($this->any())
@@ -44,44 +52,46 @@ class MultiCurlTest extends TestCase {
 
     /**
      * Tests the __construct() method.
-     * @covers \BluePsyduck\MultiCurl\Wrapper\MultiCurl::__construct
+     * @covers MultiCurl::__construct
      * @runInSeparateProcess
      */
-    public function testConstruct() {
+    public function testConstruct()
+    {
         $handle = 'abc';
 
         $functions = $this->getFunctionMockBuilder('BluePsyduck\MultiCurl\Wrapper')
-                          ->setFunctions(array('curl_multi_init'))
+                          ->setFunctions(['curl_multi_init'])
                           ->getMock();
         $functions->expects($this->once())
                   ->method('curl_multi_init')
                   ->willReturn($handle);
 
-        /* @var \BluePsyduck\MultiCurl\Wrapper\MultiCurl|\PHPUnit_Framework_MockObject_MockObject $wrapper */
-        $wrapper = $this->getMockBuilder('BluePsyduck\MultiCurl\Wrapper\MultiCurl')
-                        ->setMethods(array('__destruct'))
+        /* @var MultiCurl|MockObject $wrapper */
+        $wrapper = $this->getMockBuilder(MultiCurl::class)
+                        ->setMethods(['__destruct'])
                         ->getMock();
         $this->assertPropertyEquals($handle, $wrapper, 'handle');
     }
 
     /**
      * Tests the __destruct() method.
-     * @covers \BluePsyduck\MultiCurl\Wrapper\MultiCurl::__destruct
+     * @covers MultiCurl::__destruct
      * @runInSeparateProcess
      */
-    public function testDestruct() {
+    public function testDestruct()
+    {
         $handle = 'abc';
 
         $functions = $this->getFunctionMockBuilder('BluePsyduck\MultiCurl\Wrapper')
-                          ->setFunctions(array('curl_multi_close'))
+                          ->setFunctions(['curl_multi_close'])
                           ->getMock();
         $functions->expects($this->once())
                   ->method('curl_multi_close')
                   ->with($handle);
 
-        /* @var \BluePsyduck\MultiCurl\Wrapper\MultiCurl|\PHPUnit_Framework_MockObject_MockObject $wrapper */
-        $wrapper = $this->getMockBuilder('BluePsyduck\MultiCurl\Wrapper\MultiCurl')
-                        ->setMethods(array('__construct'))
+        /* @var MultiCurl|MockObject $wrapper */
+        $wrapper = $this->getMockBuilder(MultiCurl::class)
+                        ->setMethods(['__construct'])
                         ->getMock();
         $this->injectProperty($wrapper, 'handle', $handle);
 
@@ -90,14 +100,15 @@ class MultiCurlTest extends TestCase {
 
     /**
      * Tests the addCurl() method.
-     * @covers \BluePsyduck\MultiCurl\Wrapper\MultiCurl::addCurl
+     * @covers MultiCurl::addCurl
      */
-    public function testAddCurl() {
+    public function testAddCurl()
+    {
         $handle = 'abc';
         $curlHandle = 'def';
 
         $functions = $this->getFunctionMockBuilder('BluePsyduck\MultiCurl\Wrapper')
-                          ->setFunctions(array('curl_multi_add_handle'))
+                          ->setFunctions(['curl_multi_add_handle'])
                           ->getMock();
         $functions->expects($this->once())
                   ->method('curl_multi_add_handle')
@@ -110,14 +121,15 @@ class MultiCurlTest extends TestCase {
 
     /**
      * Tests the removeCurl() method.
-     * @covers \BluePsyduck\MultiCurl\Wrapper\MultiCurl::removeCurl
+     * @covers MultiCurl::removeCurl
      */
-    public function testRemoveCurl() {
+    public function testRemoveCurl()
+    {
         $handle = 'abc';
         $curlHandle = 'def';
 
         $functions = $this->getFunctionMockBuilder('BluePsyduck\MultiCurl\Wrapper')
-                          ->setFunctions(array('curl_multi_remove_handle'))
+                          ->setFunctions(['curl_multi_remove_handle'])
                           ->getMock();
         $functions->expects($this->once())
                   ->method('curl_multi_remove_handle')
@@ -130,14 +142,15 @@ class MultiCurlTest extends TestCase {
 
     /**
      * Tests the getContent() method.
-     * @covers \BluePsyduck\MultiCurl\Wrapper\MultiCurl::getContent
+     * @covers MultiCurl::getContent
      */
-    public function testGetContent() {
+    public function testGetContent()
+    {
         $curlHandle = 'abc';
         $content = 'def';
 
         $functions = $this->getFunctionMockBuilder('BluePsyduck\MultiCurl\Wrapper')
-                          ->setFunctions(array('curl_multi_getcontent'))
+                          ->setFunctions(['curl_multi_getcontent'])
                           ->getMock();
         $functions->expects($this->once())
                   ->method('curl_multi_getcontent')
@@ -151,9 +164,10 @@ class MultiCurlTest extends TestCase {
 
     /**
      * Tests the execute() method.
-     * @covers \BluePsyduck\MultiCurl\Wrapper\MultiCurl::execute
+     * @covers MultiCurl::execute
      */
-    public function testExecute() {
+    public function testExecute()
+    {
         $handle = 'abc';
         $runningRequests = 42;
         $resultExec = 1337;
@@ -175,14 +189,15 @@ class MultiCurlTest extends TestCase {
 
     /**
      * Tests the readInfo() method.
-     * @covers \BluePsyduck\MultiCurl\Wrapper\MultiCurl::readInfo
+     * @covers MultiCurl::readInfo
      */
-    public function testReadInfo() {
+    public function testReadInfo()
+    {
         $handle = 'abc';
         $info = array('result' => 42);
 
         $functions = $this->getFunctionMockBuilder('BluePsyduck\MultiCurl\Wrapper')
-                          ->setFunctions(array('curl_multi_info_read'))
+                          ->setFunctions(['curl_multi_info_read'])
                           ->getMock();
         $functions->expects($this->once())
                   ->method('curl_multi_info_read')
@@ -196,15 +211,16 @@ class MultiCurlTest extends TestCase {
 
     /**
      * Tests the select() method.
-     * @covers \BluePsyduck\MultiCurl\Wrapper\MultiCurl::select
+     * @covers MultiCurl::select
      */
-    public function testSelect() {
+    public function testSelect()
+    {
         $handle = 'abc';
         $timeout = 1337;
         $resultSelect = 42;
 
         $functions = $this->getFunctionMockBuilder('BluePsyduck\MultiCurl\Wrapper')
-                          ->setFunctions(array('curl_multi_select'))
+                          ->setFunctions(['curl_multi_select'])
                           ->getMock();
         $functions->expects($this->once())
                   ->method('curl_multi_select')
@@ -218,9 +234,10 @@ class MultiCurlTest extends TestCase {
 
     /**
      * Tests the getCurrentExecutionCode() method.
-     * @covers \BluePsyduck\MultiCurl\Wrapper\MultiCurl::getCurrentExecutionCode
+     * @covers ::getCurrentExecutionCode
      */
-    public function testGetCurrentExecutionCode() {
+    public function testGetCurrentExecutionCode()
+    {
         $expected = 42;
         $wrapper = $this->getMockedWrapper();
         $this->injectProperty($wrapper, 'currentExecutionCode', $expected);
@@ -230,9 +247,10 @@ class MultiCurlTest extends TestCase {
 
     /**
      * Tests the getStillRunningRequests() method.
-     * @covers \BluePsyduck\MultiCurl\Wrapper\MultiCurl::getStillRunningRequests
+     * @covers MultiCurl::getStillRunningRequests
      */
-    public function testGetStillRunningRequests() {
+    public function testGetStillRunningRequests()
+    {
         $expected = 42;
         $wrapper = $this->getMockedWrapper();
         $this->injectProperty($wrapper, 'stillRunningRequests', $expected);

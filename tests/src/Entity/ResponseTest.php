@@ -4,7 +4,7 @@ namespace BluePsyduckTests\MultiCurl\Entity;
 
 use BluePsyduck\MultiCurl\Entity\Response;
 use BluePsyduck\MultiCurl\Utils\Collection;
-use BluePsyduckTests\MultiCurl\Assets\TestCase;
+use BluePsyduckTestAssets\MultiCurl\TestCase;
 
 /**
  * The PHPUnit test of the response entity.
