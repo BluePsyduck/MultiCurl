@@ -13,7 +13,7 @@ use PHPUnit_Framework_MockObject_MockObject as MockObject;
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-2.0 GPL v2
  *
- * @coversDefaultClass \BluePsyduck\MultiCurl\Wrapper\Curl
+ * @coversDefaultClass \BluePsyduck\MultiCurl\Wrapper\MultiCurl
  */
 class MultiCurlTest extends TestCase
 {
@@ -52,7 +52,7 @@ class MultiCurlTest extends TestCase
 
     /**
      * Tests the __construct() method.
-     * @covers MultiCurl::__construct
+     * @covers ::__construct
      * @runInSeparateProcess
      */
     public function testConstruct()
@@ -75,7 +75,7 @@ class MultiCurlTest extends TestCase
 
     /**
      * Tests the __destruct() method.
-     * @covers MultiCurl::__destruct
+     * @covers ::__destruct
      * @runInSeparateProcess
      */
     public function testDestruct()
@@ -100,7 +100,7 @@ class MultiCurlTest extends TestCase
 
     /**
      * Tests the addCurl() method.
-     * @covers MultiCurl::addCurl
+     * @covers ::addCurl
      */
     public function testAddCurl()
     {
@@ -121,7 +121,7 @@ class MultiCurlTest extends TestCase
 
     /**
      * Tests the removeCurl() method.
-     * @covers MultiCurl::removeCurl
+     * @covers ::removeCurl
      */
     public function testRemoveCurl()
     {
@@ -142,7 +142,7 @@ class MultiCurlTest extends TestCase
 
     /**
      * Tests the getContent() method.
-     * @covers MultiCurl::getContent
+     * @covers ::getContent
      */
     public function testGetContent()
     {
@@ -164,7 +164,7 @@ class MultiCurlTest extends TestCase
 
     /**
      * Tests the execute() method.
-     * @covers MultiCurl::execute
+     * @covers ::execute
      */
     public function testExecute()
     {
@@ -189,7 +189,7 @@ class MultiCurlTest extends TestCase
 
     /**
      * Tests the readInfo() method.
-     * @covers MultiCurl::readInfo
+     * @covers ::readInfo
      */
     public function testReadInfo()
     {
@@ -211,7 +211,7 @@ class MultiCurlTest extends TestCase
 
     /**
      * Tests the select() method.
-     * @covers MultiCurl::select
+     * @covers ::select
      */
     public function testSelect()
     {
@@ -247,7 +247,7 @@ class MultiCurlTest extends TestCase
 
     /**
      * Tests the getStillRunningRequests() method.
-     * @covers MultiCurl::getStillRunningRequests
+     * @covers ::getStillRunningRequests
      */
     public function testGetStillRunningRequests()
     {

@@ -33,7 +33,7 @@ class CurlTest extends TestCase
 
     /**
      * Tests the __construct() method.
-     * @covers Curl::__construct
+     * @covers ::__construct
      * @runInSeparateProcess
      */
     public function testConstruct()
@@ -56,7 +56,7 @@ class CurlTest extends TestCase
 
     /**
      * Tests the __destruct() method.
-     * @covers Curl::__destruct
+     * @covers ::__destruct
      * @runInSeparateProcess
      */
     public function testDestruct()

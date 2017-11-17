@@ -2,6 +2,7 @@
 
 namespace BluePsyduckTests\MultiCurl;
 
+use BluePsyduck\MultiCurl\Constant\RequestMethod;
 use BluePsyduck\MultiCurl\Entity\Request;
 use BluePsyduck\MultiCurl\Entity\Response;
 use BluePsyduck\MultiCurl\Manager;
@@ -107,7 +108,7 @@ class ManagerTest extends TestCase {
     public function provideHydrateCurlFromRequest() {
         $request1 = new Request();
         $request1->setUrl('abc')
-                 ->setMethod(Request::METHOD_GET);
+                 ->setMethod(RequestMethod::GET);
         $options1 = array(
             CURLOPT_HTTPGET => true,
             CURLOPT_URL => 'abc',
@@ -118,7 +119,7 @@ class ManagerTest extends TestCase {
 
         $request2 = new Request();
         $request2->setUrl('def')
-                 ->setMethod(Request::METHOD_POST)
+                 ->setMethod(RequestMethod::POST)
                  ->setRequestData('ghi=jkl')
                  ->setTimeout(1337)
                  ->setHeaders(array('mno'))

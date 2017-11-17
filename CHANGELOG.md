@@ -2,14 +2,31 @@
 
 ## Unreleased
 
-## [1.2.2] - 2017-11-13
+### Added
+
+- `Header` entity used in the request and response.
+
+### Changed
+
+- `Request` method constants to a separate class.
+- `Request` now manages the header values with the new `Header` entity.
+- `Response->getHeaders()` no longer returns a Collection of Collections, but an array of `Header` entities.
+- `Response->getLastHeader()` now returns a `Header` entity, if a header is present.
+
+### Removed
+
+- Support for PHP 5.x. Now the library requires at least PHP 7.0.
+- `Collection` class. Now simple arrays or the new `Header` entity are used.
+- `Request->setCurl()` and `Request->setResponse()`. The entity now manages these instances on its own. 
+
+## 1.2.2 - 2017-11-13
 
 ### Added
 
 - Method `executeRequest()` to directly add and execute a new request in the manager.
 - Method `removeRequest()` to remove no longer needed request instances from the manager.
 
-## [1.2.1] - 2016-08-14
+## 1.2.1 - 2016-08-14
 
 ### Added
 
@@ -19,7 +36,7 @@
 
 - Method `waitForRequests()`. Use the new `waitForAllRequests()` instead.
 
-## [1.2.0] - 2016-05-18
+## 1.2.0 - 2016-05-18
 
 ### Added
 
@@ -29,13 +46,13 @@
 
 - Headers in the response entity to support multiple headers.
 
-## [1.1.1] - 2015-08-16
+## 1.1.1 - 2015-08-16
 
 ### Fixed
 
 - [PHP bug #61141](https://bugs.php.net/bug.php?id=61141) 
 
-## [1.1.0] - 2015-07-12
+## 1.1.0 - 2015-07-12
 
 ### Added
 
@@ -45,6 +62,6 @@
 
 - Major refactoring of the entity classes for easier use of the library.
 
-## [1.0.0] - 2015-03-23
+## 1.0.0 - 2015-03-23
 
 - Initial release of the library.

@@ -8,6 +8,7 @@
 
 namespace BluePsyduck\MultiCurl;
 
+use BluePsyduck\MultiCurl\Constant\RequestMethod;
 use BluePsyduck\MultiCurl\Entity\Request;
 use BluePsyduck\MultiCurl\Entity\Response;
 use BluePsyduck\MultiCurl\Utils\Collection;
@@ -55,7 +56,7 @@ class Manager {
      * @return $this Implementing fluent interface.
      */
     protected function hydrateCurlFromRequest(Curl $curl, Request $request) {
-        if ($request->getMethod() === Request::METHOD_POST) {
+        if ($request->getMethod() === RequestMethod::POST) {
             $curl->setOption(CURLOPT_POST, true)
                  ->setOption(CURLOPT_POSTFIELDS, $request->getRequestData());
         } else {
