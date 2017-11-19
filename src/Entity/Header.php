@@ -2,13 +2,17 @@
 
 namespace BluePsyduck\MultiCurl\Entity;
 
+use ArrayIterator;
+use IteratorAggregate;
+use Traversable;
+
 /**
  * The entity class representing the header of a request or response.
  *
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-2.0 GPL v2
  */
-class Header
+class Header implements IteratorAggregate
 {
     /**
      * The values of the header.
@@ -46,5 +50,14 @@ class Header
     public function get(string $name): string
     {
         return $this->values[$name] ?? '';
+    }
+
+    /**
+     * Returns the iterator of the header values.
+     * @return Traversable
+     */
+    public function getIterator(): Traversable
+    {
+        return new ArrayIterator($this->values);
     }
 }

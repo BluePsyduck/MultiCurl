@@ -215,7 +215,7 @@ class Request
 
     /**
      * Sets the callback to execute on initializing the cUrl request.
-     * @param callable $onInitializeCallback
+     * @param callable $onInitializeCallback The callback must expect exactly one parameter: The request entity.
      * @return $this Implementing fluent interface.
      */
     public function setOnInitializeCallback(callable $onInitializeCallback)

@@ -100,4 +100,14 @@ class HeaderTest extends TestCase
         $result = $header->get($name);
         $this->assertEquals($expectedResult, $result);
     }
+
+    /**
+     * Tests the getIterator() method.
+     * @covers ::getIterator
+     */
+    public function testGetIterator() {
+        $header = new Header();
+        $result = $header->getIterator();
+        $this->assertInstanceOf('Traversable', $result);
+    }
 }
