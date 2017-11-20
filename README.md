@@ -2,47 +2,49 @@ This library helps with creating and executing multiple requests simultaneously 
 
 ### Requirements
 
-* PHP 5.3 or newer
-* cUrl must be installed
+* PHP 7.0 or newer
+* PHP cUrl extension
 
 ### Usage
 
-The main class of the library is the `Manager`, to which you can add as many requests as you like and which will execute
-them. For each request to be started, create an instance of the `Entity\Request` class and set its properties as
-required, and add it to the manager using `$manager->addRequest($request)`.
+The main class of the library is the `MultiCurlManager`, to which you can add as many requests as you like and which 
+will execute them. For each request to be started, create an instance of the `Entity\Request` class and set its 
+properties as required, and add it to the manager using `$manager->addRequest($request)`. Added requests will 
+immediately be executed, without blocking the script execution.
 
-To any moment, you may want to call `$manager->execute()` of the manager. This will start any not yet started requests,
-and will check all already running requests if any of them has finished. This method will return immediately, and will
-not wait for the requests to be finished. If you want to wait for all requests to be finished, call
-`$manager->waitForRequests()`.
+To wait for a certain request to finish, call `$manager->waitForSingleRequest($request)`. To wait for all requests to 
+finish, call `$manager->waitForAllRequests()`. These methods will block script execution until the desired requests are
+finished.
 
 Once a request is finished, use `$request->getResponse()` to get the information of the response. You may want to check
 `$response->getErrorCode()` and `$response->getErrorMessage()` to get any information in case the request has failed.
-It is possible to add a callback to the request using `$request->setOnCompleteCallback($callback)`. This method will be
-executed as soon as the manager recognizes the request to be finished.
+
+The requests offer two callbacks:
+- onInitialize: This callback is triggered once the underlying cUrl request has been initialized. Use this callback to
+  further manipulate the cUrl. After this callback, the cUrl request gets executed.
+- onComplete: This callback is triggered once the cUrl request finished and the response has been parsed into the 
+  entity.
 
 ### Example
 
-Here is a full example demonstrating the use of the manager:
+Here is a basic example demonstrating the use of the `MultiCurlManager`:
 
 ```php
 <?php
 
-use BluePsyduck\MultiCurl\Manager;
+use BluePsyduck\MultiCurl\MultiCurlManager;
 use BluePsyduck\MultiCurl\Entity\Request;
 
-$manager = new Manager();
+$manager = new MultiCurlManager();
 
 $requestFoo = new Request();
 $requestFoo->setUrl('http://localhost/data.php?action=foo');
-$manager->addRequest($foo)
-        ->execute(); // Already start the first request.
+$manager->addRequest($requestFoo); // Will execute the first request, but will not wait for it to finish.
 
 $requestBar = new Request();
 $requestBar->setUrl('http://localhost/data.php?action=bar');
 
-$manager->addRequest($requestBar)
-        ->execute(); // Start the second request. First request will be checked if finished.
+$manager->addRequest($requestBar); // Will execute the second request, having both run parallel.
 
 // Some other code.
 
@@ -53,7 +55,46 @@ var_dump($requestFoo->getResponse());
 var_dump($requestBar->getResponse());
 ```
 
-### Notes
+Here is another example demonstrating limiting the number of parallel requests:
 
-* The manager will not limit the number of currently running requests, so make sure to not add too many requests at
-  once.
+```php
+<?php 
+
+use BluePsyduck\MultiCurl\MultiCurlManager;
+use BluePsyduck\MultiCurl\Entity\Request;
+
+$manager = new MultiCurlManager();
+$manager->setNumberOfParallelRequests(4); // Limit number of parallel requests.
+
+for ($i = 0; $i < 16; ++$i) {
+    $request = new Request();
+    $request->setUrl('http://localhost/data.php?i=' . $i);
+    $request->setOnInitializeCallback(function(Request $request) use ($i) {
+        echo 'Initialize #' . $i . PHP_EOL;
+    });
+    $request->setOnCompleteCallback(function(Request $request) use ($i) {
+        echo 'Complete #' . $i . PHP_EOL;
+    });
+    $manager->addRequest($request);
+}
+
+// Now 16 requests have been scheduled to be executed, but only 4 requests will run in parallel.
+// Once a request finishes, the next one will be executed.
+
+$importantRequest = new Request();
+$importantRequest->setUrl('http://localhost/data.php?type=important');
+$importantRequest->setOnInitializeCallback(function(Request $request) use ($i) {
+    echo 'Initialize important request' . PHP_EOL;
+});
+$importantRequest->setOnCompleteCallback(function(Request $request) use ($i) {
+    echo 'Complete important request' . PHP_EOL;
+});
+$manager->addRequest($importantRequest); // Important request will not be executed because of the limit.
+
+$manager->waitForSingleRequest($importantRequest); // This will execute the request, ignoring the limit.
+// So now actually 5 requests are running in parallel.
+
+echo 'Important request has finished.' . PHP_EOL;
+
+$manager->waitForAllRequests(); // Wait for all the other requests.
+```

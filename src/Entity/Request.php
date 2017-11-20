@@ -1,32 +1,23 @@
 <?php
 
+namespace BluePsyduck\MultiCurl\Entity;
+
+use BluePsyduck\MultiCurl\Constant\RequestMethod;
+use BluePsyduck\MultiCurl\Wrapper\Curl;
+
 /**
- * The request entity.
+ * The entity representing a request.
  *
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-2.0 GPL v2
  */
-
-namespace BluePsyduck\MultiCurl\Entity;
-
-use BluePsyduck\MultiCurl\Wrapper\Curl;
-
-class Request {
-    /**
-     * The request uses the GET method.
-     */
-    const METHOD_GET = 'get';
-
-    /**
-     * The request uses the POST method.
-     */
-    const METHOD_POST = 'post';
-
+class Request
+{
     /**
      * The method to use for the request.
      * @var string
      */
-    protected $method = self::METHOD_GET;
+    protected $method = RequestMethod::GET;
 
     /**
      * The URL to request.
@@ -38,16 +29,16 @@ class Request {
      * The request data to send with the request.
      * @var string
      */
-    protected $requestData;
+    protected $requestData = '';
 
     /**
-     * Additional headers to send with the request.
-     * @var array
+     * The additional header to send with the request.
+     * @var Header
      */
-    protected $headers = array();
+    protected $header;
 
     /**
-     * The timeout to use.
+     * The timeout to use, in seconds.
      * @var int
      */
     protected $timeout = 0;
@@ -65,29 +56,46 @@ class Request {
     protected $basicAuthPassword = '';
 
     /**
-     * The callback to execute on completing the request.
-     * @var callable
+     * The callback to execute on initializing the cUrl request.
+     * @var callable|null
      */
-    protected $onCompleteCallback;
+    protected $onInitializeCallback = null;
+
+    /**
+     * The callback to execute on completing the request.
+     * @var callable|null
+     */
+    protected $onCompleteCallback = null;
 
     /**
      * The cUrl instance used for executing the request.
-     * @var \BluePsyduck\MultiCurl\Wrapper\Curl
+     * @var Curl
      */
     protected $curl;
 
     /**
      * The response entity, available once the request has been completed.
-     * @var \BluePsyduck\MultiCurl\Entity\Response
+     * @var Response
      */
     protected $response;
+
+    /**
+     * Initializes the request.
+     */
+    public function __construct()
+    {
+        $this->header = new Header();
+        $this->curl = new Curl();
+        $this->response = new Response();
+    }
 
     /**
      * Sets the method to use for the request.
      * @param string $method
      * @return $this Implementing fluent interface.
      */
-    public function setMethod($method) {
+    public function setMethod(string $method)
+    {
         $this->method = $method;
         return $this;
     }
@@ -96,7 +104,8 @@ class Request {
      * Returns the method to use for the request.
      * @return string
      */
-    public function getMethod() {
+    public function getMethod(): string
+    {
         return $this->method;
     }
 
@@ -105,7 +114,8 @@ class Request {
      * @param string $url
      * @return $this Implementing fluent interface.
      */
-    public function setUrl($url) {
+    public function setUrl(string $url)
+    {
         $this->url = $url;
         return $this;
     }
@@ -114,7 +124,8 @@ class Request {
      * Returns the URL to request.
      * @return string
      */
-    public function getUrl() {
+    public function getUrl(): string
+    {
         return $this->url;
     }
 
@@ -123,7 +134,8 @@ class Request {
      * @param string|array $requestData
      * @return $this Implementing fluent interface.
      */
-    public function setRequestData($requestData) {
+    public function setRequestData($requestData)
+    {
         if (is_array($requestData)) {
             $this->requestData = http_build_query($requestData);
         } else {
@@ -133,45 +145,40 @@ class Request {
     }
 
     /**
+     * Returns the request data to send with the request.
      * @return string
      */
-    public function getRequestData() {
+    public function getRequestData(): string
+    {
         return $this->requestData;
     }
 
     /**
-     * Sets the additional headers to send with the request.
-     * @param array $headers
-     * @return $this Implementing fluent interface.
+     * Returns additional the header to send with the request.
+     * @return Header
      */
-    public function setHeaders(array $headers) {
-        $this->headers = $headers;
-        return $this;
+    public function getHeader(): Header
+    {
+        return $this->header;
     }
 
     /**
-     * Returns the additional headers to send with the request.
-     * @return array
-     */
-    public function getHeaders() {
-        return $this->headers;
-    }
-
-    /**
-     * Sets the timeout to use.
+     * Sets the timeout to use, in seconds.
      * @param int $timeout
      * @return $this Implementing fluent interface.
      */
-    public function setTimeout($timeout) {
+    public function setTimeout(int $timeout)
+    {
         $this->timeout = $timeout;
         return $this;
     }
 
     /**
-     * Returns the timeout to use.
+     * Returns the timeout to use, in seconds.
      * @return int
      */
-    public function getTimeout() {
+    public function getTimeout(): int
+    {
         return $this->timeout;
     }
 
@@ -181,7 +188,8 @@ class Request {
      * @param string $password The password to use.
      * @return $this Implementing fluent interface.
      */
-    public function setBasicAuth($username, $password) {
+    public function setBasicAuth(string $username, string $password)
+    {
         $this->basicAuthUsername = $username;
         $this->basicAuthPassword = $password;
         return $this;
@@ -191,7 +199,8 @@ class Request {
      * Returns the username to use for basic authentication.
      * @return string
      */
-    public function getBasicAuthUsername() {
+    public function getBasicAuthUsername(): string
+    {
         return $this->basicAuthUsername;
     }
 
@@ -199,8 +208,29 @@ class Request {
      * Returns the password to use for basic authentication.
      * @return string
      */
-    public function getBasicAuthPassword() {
+    public function getBasicAuthPassword(): string
+    {
         return $this->basicAuthPassword;
+    }
+
+    /**
+     * Sets the callback to execute on initializing the cUrl request.
+     * @param callable $onInitializeCallback The callback must expect exactly one parameter: The request entity.
+     * @return $this Implementing fluent interface.
+     */
+    public function setOnInitializeCallback(callable $onInitializeCallback)
+    {
+        $this->onInitializeCallback = $onInitializeCallback;
+        return $this;
+    }
+
+    /**
+     * Returns the callback to execute on initializing the cUrl request.
+     * @return callable|null
+     */
+    public function getOnInitializeCallback()
+    {
+        return $this->onInitializeCallback;
     }
 
     /**
@@ -208,52 +238,36 @@ class Request {
      * @param callable $onCompleteCallback The callback must expect exactly one parameter: The request entity.
      * @return $this Implementing fluent interface.
      */
-    public function setOnCompleteCallback(callable $onCompleteCallback) {
+    public function setOnCompleteCallback(callable $onCompleteCallback)
+    {
         $this->onCompleteCallback = $onCompleteCallback;
         return $this;
     }
 
     /**
      * Returns the callback to execute on completing the request.
-     * @return callable
+     * @return callable|null
      */
-    public function getOnCompleteCallback() {
+    public function getOnCompleteCallback()
+    {
         return $this->onCompleteCallback;
     }
 
     /**
-     * Sets the cUrl instance used for executing the request.
-     * @param \BluePsyduck\MultiCurl\Wrapper\Curl $curl
-     * @return $this Implementing fluent interface.
-     */
-    public function setCurl(Curl $curl) {
-        $this->curl = $curl;
-        return $this;
-    }
-
-    /**
      * Returns the cUrl instance used for executing the request.
-     * @return \BluePsyduck\MultiCurl\Wrapper\Curl
+     * @return Curl
      */
-    public function getCurl() {
+    public function getCurl(): Curl
+    {
         return $this->curl;
     }
 
     /**
-     * Sets the response entity, available once the request has been completed.
-     * @param \BluePsyduck\MultiCurl\Entity\Response $response
-     * @return $this Implementing fluent interface.
-     */
-    public function setResponse(Response $response) {
-        $this->response = $response;
-        return $this;
-    }
-
-    /**
      * Returns the response entity, available once the request has been completed.
-     * @return \BluePsyduck\MultiCurl\Entity\Response
+     * @return Response
      */
-    public function getResponse() {
+    public function getResponse()
+    {
         return $this->response;
     }
 }

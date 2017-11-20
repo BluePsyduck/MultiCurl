@@ -2,31 +2,26 @@
 
 namespace BluePsyduckTests\MultiCurl\Entity;
 
+use BluePsyduck\MultiCurl\Entity\Header;
 use BluePsyduck\MultiCurl\Entity\Response;
-use BluePsyduck\MultiCurl\Utils\Collection;
-use BluePsyduckTests\MultiCurl\Assets\TestCase;
+use BluePsyduckTestAssets\MultiCurl\TestCase;
 
 /**
  * The PHPUnit test of the response entity.
  *
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-2.0 GPL v2
+ *
+ * @coversDefaultClass \BluePsyduck\MultiCurl\Entity\Response
  */
-class ResponseTest extends TestCase {
-    /**
-     * Tests the __construct() method.
-     * @covers \BluePsyduck\MultiCurl\Entity\Response::__construct
-     */
-    public function testConstruct() {
-        $response = new Response();
-        $this->assertPropertyInstanceOf('BluePsyduck\MultiCurl\Utils\Collection', $response, 'headers');
-    }
-
+class ResponseTest extends TestCase
+{
     /**
      * Tests the setErrorCode() method.
-     * @covers \BluePsyduck\MultiCurl\Entity\Response::setErrorCode
+     * @covers ::setErrorCode
      */
-    public function testSetErrorCode() {
+    public function testSetErrorCode()
+    {
         $expected = 42;
         $response = new Response();
         $result = $response->setErrorCode($expected);
@@ -36,9 +31,10 @@ class ResponseTest extends TestCase {
 
     /**
      * Tests the getErrorCode() method.
-     * @covers \BluePsyduck\MultiCurl\Entity\Response::getErrorCode
+     * @covers ::getErrorCode
      */
-    public function testGetErrorCode() {
+    public function testGetErrorCode()
+    {
         $expected = 42;
         $response = new Response();
         $this->injectProperty($response, 'errorCode', $expected);
@@ -48,9 +44,10 @@ class ResponseTest extends TestCase {
 
     /**
      * Tests the setErrorMessage() method.
-     * @covers \BluePsyduck\MultiCurl\Entity\Response::setErrorMessage
+     * @covers ::setErrorMessage
      */
-    public function testSetErrorMessage() {
+    public function testSetErrorMessage()
+    {
         $expected = 'abc';
         $response = new Response();
         $result = $response->setErrorMessage($expected);
@@ -60,9 +57,10 @@ class ResponseTest extends TestCase {
 
     /**
      * Tests the getErrorMessage() method.
-     * @covers \BluePsyduck\MultiCurl\Entity\Response::getErrorMessage
+     * @covers ::getErrorMessage
      */
-    public function testGetErrorMessage() {
+    public function testGetErrorMessage()
+    {
         $expected = 'abc';
         $response = new Response();
         $this->injectProperty($response, 'errorMessage', $expected);
@@ -72,9 +70,10 @@ class ResponseTest extends TestCase {
 
     /**
      * Tests the setStatusCode() method.
-     * @covers \BluePsyduck\MultiCurl\Entity\Response::setStatusCode
+     * @covers ::setStatusCode
      */
-    public function testSetStatusCode() {
+    public function testSetStatusCode()
+    {
         $expected = 42;
         $response = new Response();
         $result = $response->setStatusCode($expected);
@@ -84,9 +83,10 @@ class ResponseTest extends TestCase {
 
     /**
      * Tests the getStatusCode() method.
-     * @covers \BluePsyduck\MultiCurl\Entity\Response::getStatusCode
+     * @covers ::getStatusCode
      */
-    public function testGetStatusCode() {
+    public function testGetStatusCode()
+    {
         $expected = 42;
         $response = new Response();
         $this->injectProperty($response, 'statusCode', $expected);
@@ -95,48 +95,65 @@ class ResponseTest extends TestCase {
     }
 
     /**
-     * Tests the setHeaders() method.
-     * @covers \BluePsyduck\MultiCurl\Entity\Response::setHeaders
+     * Tests the addHeader() method.
+     * @covers ::addHeader
      */
-    public function testSetHeaders() {
-        $expected = new Collection(array('abc' => 'def'));
+    public function testAddHeader() {
+        $header1 = new Header();
+        $header1->set('abc', 'def');
+        $header2 = new Header();
+        $header2->set('ghi', 'jkl');
+        $headers = [$header1];
+        $expectedHeaders = [$header1, $header2];
+
         $response = new Response();
-        $result = $response->setHeaders($expected);
+        $this->injectProperty($response, 'headers', $headers);
+        $result = $response->addHeader($header2);
         $this->assertEquals($response, $result);
-        $this->assertPropertyEquals($expected, $response, 'headers');
+        $this->assertPropertyEquals($expectedHeaders, $response, 'headers');
     }
 
     /**
      * Tests the getHeaders() method.
-     * @covers \BluePsyduck\MultiCurl\Entity\Response::getHeaders
+     * @covers ::getHeaders
      */
     public function testGetHeaders() {
-        $expected = new Collection(array('abc' => 'def'));
+        $header1 = new Header();
+        $header1->set('abc', 'def');
+        $header2 = new Header();
+        $header2->set('ghi', 'jkl');
+        $headers = [$header1, $header2];
+
         $response = new Response();
-        $this->injectProperty($response, 'headers', $expected);
+        $this->injectProperty($response, 'headers', $headers);
         $result = $response->getHeaders();
-        $this->assertEquals($expected, $result);
+        $this->assertEquals($headers, $result);
     }
 
     /**
      * Tests the getLastHeader() method.
-     * @covers \BluePsyduck\MultiCurl\Entity\Response::getLastHeader
+     * @covers ::getLastHeader
      */
-    public function testGetLastHeader() {
-        $lastHeader = new Collection(array('abc' => 'def'));
-        $headers = new Collection(array($lastHeader, new Collection()));
+    public function testGetLastHeader()
+    {
+        $header1 = new Header();
+        $header1->set('abc', 'def');
+        $header2 = new Header();
+        $header2->set('ghi', 'jkl');
+        $headers = [$header1, $header2];
 
         $response = new Response();
         $this->injectProperty($response, 'headers', $headers);
         $result = $response->getLastHeader();
-        $this->assertEquals($lastHeader, $result);
+        $this->assertEquals($header1, $result);
     }
 
     /**
      * Tests the setContent() method.
-     * @covers \BluePsyduck\MultiCurl\Entity\Response::setContent
+     * @covers ::setContent
      */
-    public function testSetContent() {
+    public function testSetContent()
+    {
         $expected = 'abc';
         $response = new Response();
         $result = $response->setContent($expected);
@@ -146,9 +163,10 @@ class ResponseTest extends TestCase {
 
     /**
      * Tests the getContent() method.
-     * @covers \BluePsyduck\MultiCurl\Entity\Response::getContent
+     * @covers ::getContent
      */
-    public function testGetContent() {
+    public function testGetContent()
+    {
         $expected = 'abc';
         $response = new Response();
         $this->injectProperty($response, 'content', $expected);

@@ -1,22 +1,20 @@
 <?php
 
+namespace BluePsyduck\MultiCurl\Entity;
+
 /**
- * The response entity.
+ * The entity representing a response to a request.
  *
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-2.0 GPL v2
  */
-
-namespace BluePsyduck\MultiCurl\Entity;
-
-use BluePsyduck\MultiCurl\Utils\Collection;
-
-class Response {
+class Response
+{
     /**
      * The cUrl error code in case an error occurred while executing the request.
      * @var int
      */
-    protected $errorCode = 0;
+    protected $errorCode = CURLE_OK;
 
     /**
      * The cUrl message code in case an error occurred while executing the request.
@@ -32,9 +30,9 @@ class Response {
 
     /**
      * The headers of the response.
-     * @var \BluePsyduck\MultiCurl\Utils\Collection
+     * @var array|Header[]
      */
-    protected $headers;
+    protected $headers = [];
 
     /**
      * The content of the response.
@@ -43,28 +41,23 @@ class Response {
     protected $content = '';
 
     /**
-     * Initializes the response.
+     * Sets the cUrl error code in case an error occurred while executing the request.
+     * @param int $errorCode
+     * @return $this Implementing fluent interface.
      */
-    public function __construct() {
-        $this->headers = new Collection();
+    public function setErrorCode(int $errorCode)
+    {
+        $this->errorCode = $errorCode;
+        return $this;
     }
 
     /**
      * Returns the cUrl error code in case an error occurred while executing the request.
      * @return int
      */
-    public function getErrorCode() {
+    public function getErrorCode(): int
+    {
         return $this->errorCode;
-    }
-
-    /**
-     * Sets the cUrl error code in case an error occurred while executing the request.
-     * @param int $errorCode
-     * @return $this Implementing fluent interface.
-     */
-    public function setErrorCode($errorCode) {
-        $this->errorCode = $errorCode;
-        return $this;
     }
 
     /**
@@ -72,7 +65,8 @@ class Response {
      * @param string $errorMessage
      * @return $this Implementing fluent interface.
      */
-    public function setErrorMessage($errorMessage) {
+    public function setErrorMessage(string $errorMessage)
+    {
         $this->errorMessage = $errorMessage;
         return $this;
     }
@@ -81,7 +75,8 @@ class Response {
      * Returns the cUrl error message in case an error occurred while executing the request.
      * @return string
      */
-    public function getErrorMessage() {
+    public function getErrorMessage(): string
+    {
         return $this->errorMessage;
     }
 
@@ -89,7 +84,8 @@ class Response {
      * @param int $statusCode
      * @return $this Implementing fluent interface.
      */
-    public function setStatusCode($statusCode) {
+    public function setStatusCode(int $statusCode)
+    {
         $this->statusCode = $statusCode;
         return $this;
     }
@@ -98,34 +94,38 @@ class Response {
      * Returns the status code of the response.
      * @return int
      */
-    public function getStatusCode() {
+    public function getStatusCode(): int
+    {
         return $this->statusCode;
     }
 
     /**
-     * Sets the headers of the response.
-     * @param \BluePsyduck\MultiCurl\Utils\Collection $headers
+     * Adds a header to the response.
+     * @param Header $header
      * @return $this Implementing fluent interface.
      */
-    public function setHeaders(Collection $headers) {
-        $this->headers = $headers;
+    public function addHeader(Header $header)
+    {
+        $this->headers[] = $header;
         return $this;
     }
 
     /**
      * Returns the headers of the response.
-     * @return \BluePsyduck\MultiCurl\Utils\Collection
+     * @return array|Header[]
      */
-    public function getHeaders() {
+    public function getHeaders(): array
+    {
         return $this->headers;
     }
 
     /**
      * Returns the header of the last redirect of the request.
-     * @return \BluePsyduck\MultiCurl\Utils\Collection|null
+     * @return Header|null
      */
-    public function getLastHeader() {
-        return $this->headers->top();
+    public function getLastHeader()
+    {
+        return reset($this->headers);
     }
 
     /**
@@ -133,7 +133,8 @@ class Response {
      * @param string $content
      * @return $this Implementing fluent interface.
      */
-    public function setContent($content) {
+    public function setContent(string $content)
+    {
         $this->content = $content;
         return $this;
     }
@@ -142,7 +143,8 @@ class Response {
      * Returns the content of the response.
      * @return string
      */
-    public function getContent() {
+    public function getContent(): string
+    {
         return $this->content;
     }
 }

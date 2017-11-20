@@ -2,23 +2,29 @@
 
 namespace BluePsyduckTests\MultiCurl\Wrapper;
 
-use BluePsyduckTests\MultiCurl\Assets\TestCase;
+use BluePsyduck\MultiCurl\Wrapper\Curl;
+use BluePsyduckTestAssets\MultiCurl\TestCase;
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 
 /**
  * PHPUnit test of the cUrl wrapper.
  *
  * @author BluePsyduck <bluepsyduck@gmx.com>
  * @license http://opensource.org/licenses/GPL-2.0 GPL v2
+ *
+ * @coversDefaultClass \BluePsyduck\MultiCurl\Wrapper\Curl
  */
-class CurlTest extends TestCase {
+class CurlTest extends TestCase
+{
     /**
      * Returns the mocked wrapper.
-     * @param mixed $handle The handle to set.
-     * @return \BluePsyduck\MultiCurl\Wrapper\Curl
+     * @param resource $handle The handle to set.
+     * @return Curl|MockObject
      */
-    protected function getMockedWrapper($handle = null) {
-        $wrapper = $this->getMockBuilder('BluePsyduck\MultiCurl\Wrapper\Curl')
-                        ->setMethods(array('__construct', '__destruct'))
+    protected function getMockedWrapper($handle = null)
+    {
+        $wrapper = $this->getMockBuilder(Curl::class)
+                        ->setMethods(['__construct', '__destruct'])
                         ->disableOriginalConstructor()
                         ->getMock();
         $this->injectProperty($wrapper, 'handle', $handle);
@@ -27,44 +33,46 @@ class CurlTest extends TestCase {
 
     /**
      * Tests the __construct() method.
-     * @covers \BluePsyduck\MultiCurl\Wrapper\Curl::__construct
+     * @covers ::__construct
      * @runInSeparateProcess
      */
-    public function testConstruct() {
+    public function testConstruct()
+    {
         $handle = 'abc';
 
         $functions = $this->getFunctionMockBuilder('BluePsyduck\MultiCurl\Wrapper')
-                          ->setFunctions(array('curl_init'))
+                          ->setFunctions(['curl_init'])
                           ->getMock();
         $functions->expects($this->once())
                   ->method('curl_init')
                   ->willReturn($handle);
 
-        /* @var \BluePsyduck\MultiCurl\Wrapper\Curl|\PHPUnit_Framework_MockObject_MockObject $wrapper */
-        $wrapper = $this->getMockBuilder('BluePsyduck\MultiCurl\Wrapper\Curl')
-                        ->setMethods(array('__destruct'))
+        /* @var Curl|MockObject $wrapper */
+        $wrapper = $this->getMockBuilder(Curl::class)
+                        ->setMethods(['__destruct'])
                         ->getMock();
         $this->assertPropertyEquals($handle, $wrapper, 'handle');
     }
 
     /**
      * Tests the __destruct() method.
-     * @covers \BluePsyduck\MultiCurl\Wrapper\Curl::__destruct
+     * @covers ::__destruct
      * @runInSeparateProcess
      */
-    public function testDestruct() {
+    public function testDestruct()
+    {
         $handle = 'abc';
 
         $functions = $this->getFunctionMockBuilder('BluePsyduck\MultiCurl\Wrapper')
-                          ->setFunctions(array('curl_close'))
+                          ->setFunctions(['curl_close'])
                           ->getMock();
         $functions->expects($this->once())
                   ->method('curl_close')
                   ->with($handle);
 
-        /* @var \BluePsyduck\MultiCurl\Wrapper\Curl|\PHPUnit_Framework_MockObject_MockObject $wrapper */
-        $wrapper = $this->getMockBuilder('BluePsyduck\MultiCurl\Wrapper\Curl')
-                        ->setMethods(array('__construct'))
+        /* @var Curl|MockObject $wrapper */
+        $wrapper = $this->getMockBuilder(Curl::class)
+                        ->setMethods(['__construct'])
                         ->disableOriginalConstructor()
                         ->getMock();
         $this->injectProperty($wrapper, 'handle', $handle);
@@ -74,9 +82,10 @@ class CurlTest extends TestCase {
 
     /**
      * Tests the getHandle() method.
-     * @covers \BluePsyduck\MultiCurl\Wrapper\Curl::getHandle
+     * @covers ::getHandle
      */
-    public function testGetHandle() {
+    public function testGetHandle()
+    {
         $expected = 'abc';
         $wrapper = $this->getMockedWrapper();
         $this->injectProperty($wrapper, 'handle', $expected);
@@ -86,15 +95,16 @@ class CurlTest extends TestCase {
 
     /**
      * Tests the setOption() method.
-     * @covers \BluePsyduck\MultiCurl\Wrapper\Curl::setOption
+     * @covers ::setOption
      */
-    public function testSetOption() {
+    public function testSetOption()
+    {
         $handle = 'abc';
         $name = 'def';
         $value = 'ghi';
 
         $functions = $this->getFunctionMockBuilder('BluePsyduck\MultiCurl\Wrapper')
-                          ->setFunctions(array('curl_setopt'))
+                          ->setFunctions(['curl_setopt'])
                           ->getMock();
         $functions->expects($this->once())
                   ->method('curl_setopt')
@@ -107,14 +117,15 @@ class CurlTest extends TestCase {
 
     /**
      * Tests the execute() method.
-     * @covers \BluePsyduck\MultiCurl\Wrapper\Curl::execute
+     * @covers ::execute
      */
-    public function testExecute() {
+    public function testExecute()
+    {
         $handle = 'abc';
         $resultExec = 'def';
 
         $functions = $this->getFunctionMockBuilder('BluePsyduck\MultiCurl\Wrapper')
-                          ->setFunctions(array('curl_exec'))
+                          ->setFunctions(['curl_exec'])
                           ->getMock();
         $functions->expects($this->once())
                   ->method('curl_exec')
@@ -128,36 +139,38 @@ class CurlTest extends TestCase {
 
     /**
      * Tests the getInfo() method.
-     * @covers \BluePsyduck\MultiCurl\Wrapper\Curl::getInfo
+     * @covers ::getInfo
      */
-    public function testGetInfo() {
+    public function testGetInfo()
+    {
         $handle = 'abc';
-        $name = 'def';
+        $code = 42;
         $info = 'ghi';
 
         $functions = $this->getFunctionMockBuilder('BluePsyduck\MultiCurl\Wrapper')
-                          ->setFunctions(array('curl_getinfo'))
+                          ->setFunctions(['curl_getinfo'])
                           ->getMock();
         $functions->expects($this->once())
                   ->method('curl_getinfo')
-                  ->with($handle, $name)
+                  ->with($handle, $code)
                   ->willReturn($info);
 
         $wrapper = $this->getMockedWrapper($handle);
-        $result = $wrapper->getInfo($name);
+        $result = $wrapper->getInfo($code);
         $this->assertEquals($info, $result);
     }
-    
+
     /**
      * Tests the getErrorCode() method.
-     * @covers \BluePsyduck\MultiCurl\Wrapper\Curl::getErrorCode
+     * @covers ::getErrorCode
      */
-    public function testGetErrorCode() {
+    public function testGetErrorCode()
+    {
         $handle = 'abc';
         $errorCode = 42;
 
         $functions = $this->getFunctionMockBuilder('BluePsyduck\MultiCurl\Wrapper')
-                          ->setFunctions(array('curl_errno'))
+                          ->setFunctions(['curl_errno'])
                           ->getMock();
         $functions->expects($this->once())
                   ->method('curl_errno')
@@ -171,14 +184,15 @@ class CurlTest extends TestCase {
 
     /**
      * Tests the getErrorMessage() method.
-     * @covers \BluePsyduck\MultiCurl\Wrapper\Curl::getErrorMessage
+     * @covers ::getErrorMessage
      */
-    public function testGetErrorMessage() {
+    public function testGetErrorMessage()
+    {
         $handle = 'abc';
         $errorMessage = 'def';
 
         $functions = $this->getFunctionMockBuilder('BluePsyduck\MultiCurl\Wrapper')
-                          ->setFunctions(array('curl_error'))
+                          ->setFunctions(['curl_error'])
                           ->getMock();
         $functions->expects($this->once())
                   ->method('curl_error')

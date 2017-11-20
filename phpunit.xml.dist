@@ -1,16 +1,12 @@
 <phpunit colors="true">
     <testsuites>
         <testsuite name="BluePsyduck\MultiCurl">
-            <directory>tests</directory>
+            <directory>tests/src</directory>
         </testsuite>
     </testsuites>
     <filter>
         <whitelist>
             <directory suffix=".php">src</directory>
-            <exclude>
-                <directory suffix=".php">vendor</directory>
-                <directory suffix=".php">tests/Assets</directory>
-            </exclude>
         </whitelist>
     </filter>
 </phpunit>
