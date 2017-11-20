@@ -1,11 +1,15 @@
-This library helps with creating and executing multiple requests simultaneously using the Multi-cUrl functions of PHP.
+# BluePsyduck's MultiCurl Library
 
-### Requirements
+[![Latest Stable Version](https://poser.pugx.org/bluepsyduck/multicurl/v/stable)](https://packagist.org/packages/bluepsyduck/multicurl) [![Total Downloads](https://poser.pugx.org/bluepsyduck/multicurl/downloads)](https://packagist.org/packages/bluepsyduck/multicurl) [![License](https://poser.pugx.org/bluepsyduck/multicurl/license)](https://packagist.org/packages/bluepsyduck/multicurl) [![Build Status](https://travis-ci.org/BluePsyduck/MultiCurl.svg?branch=master)](https://travis-ci.org/BluePsyduck/MultiCurl) [![codecov](https://codecov.io/gh/BluePsyduck/MultiCurl/branch/master/graph/badge.svg)](https://codecov.io/gh/BluePsyduck/MultiCurl)
+
+This library helps with creating and executing multiple requests simultaneously using the Multi-cURL functions of PHP.
+
+## Requirements
 
 * PHP 7.0 or newer
-* PHP cUrl extension
+* PHP cURL extension
 
-### Usage
+## Usage
 
 The main class of the library is the `MultiCurlManager`, to which you can add as many requests as you like and which 
 will execute them. For each request to be started, create an instance of the `Entity\Request` class and set its 
@@ -20,12 +24,12 @@ Once a request is finished, use `$request->getResponse()` to get the information
 `$response->getErrorCode()` and `$response->getErrorMessage()` to get any information in case the request has failed.
 
 The requests offer two callbacks:
-- onInitialize: This callback is triggered once the underlying cUrl request has been initialized. Use this callback to
-  further manipulate the cUrl. After this callback, the cUrl request gets executed.
-- onComplete: This callback is triggered once the cUrl request finished and the response has been parsed into the 
+- onInitialize: This callback is triggered once the underlying cURL request has been initialized. Use this callback to
+  further manipulate the cURL. After this callback, the cURL request gets executed.
+- onComplete: This callback is triggered once the cURL request finished and the response has been parsed into the 
   entity.
 
-### Example
+## Examples
 
 Here is a basic example demonstrating the use of the `MultiCurlManager`:
 

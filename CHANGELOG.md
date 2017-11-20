@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 2.0.0 - 2017-11-20
+
 ### Added
 
 - Auto-execution of requests when adding them to the manager.
