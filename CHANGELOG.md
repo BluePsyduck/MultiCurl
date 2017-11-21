@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changed
+
+- `CurlWrapper->getInfo()` now accepts `null` as argument to match the underlying `curl_getinfo()`.
+
 ## 2.0.0 - 2017-11-20
 
 ### Added

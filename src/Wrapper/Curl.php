@@ -64,10 +64,10 @@ class Curl
 
     /**
      * Returns the information to the cURL instance.
-     * @param int $code The code of the info to return.
+     * @param int|null $code The code of the info to return.
      * @return mixed The information.
      */
-    public function getInfo(int $code)
+    public function getInfo($code = null)
     {
         return curl_getinfo($this->handle, $code);
     }

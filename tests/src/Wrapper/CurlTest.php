@@ -138,14 +138,27 @@ class CurlTest extends TestCase
     }
 
     /**
-     * Tests the getInfo() method.
-     * @covers ::getInfo
+     * Provides the data for the getInfo() test.
+     * @return array The data.
      */
-    public function testGetInfo()
+    public function provideGetInfo(): array
+    {
+        return [
+            [42, 'ghi'],
+            [null, ['def' => 'ghi']]
+        ];
+    }
+
+    /**
+     * Tests the getInfo() method.
+     * @param int|null $code
+     * @param mixed $expectedResult
+     * @covers ::getInfo
+     * @dataProvider provideGetInfo
+     */
+    public function testGetInfo($code, $expectedResult)
     {
         $handle = 'abc';
-        $code = 42;
-        $info = 'ghi';
 
         $functions = $this->getFunctionMockBuilder('BluePsyduck\MultiCurl\Wrapper')
                           ->setFunctions(['curl_getinfo'])
@@ -153,11 +166,11 @@ class CurlTest extends TestCase
         $functions->expects($this->once())
                   ->method('curl_getinfo')
                   ->with($handle, $code)
-                  ->willReturn($info);
+                  ->willReturn($expectedResult);
 
         $wrapper = $this->getMockedWrapper($handle);
         $result = $wrapper->getInfo($code);
-        $this->assertEquals($info, $result);
+        $this->assertEquals($expectedResult, $result);
     }
 
     /**
