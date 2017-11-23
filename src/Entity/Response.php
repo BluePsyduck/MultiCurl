@@ -41,6 +41,16 @@ class Response
     protected $content = '';
 
     /**
+     * Clones the response.
+     */
+    public function __clone()
+    {
+        $this->headers = array_map(function(Header $header): Header {
+            return clone($header);
+        }, $this->headers);
+    }
+
+    /**
      * Sets the cUrl error code in case an error occurred while executing the request.
      * @param int $errorCode
      * @return $this Implementing fluent interface.

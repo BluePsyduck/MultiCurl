@@ -90,6 +90,16 @@ class Request
     }
 
     /**
+     * Clones the request.
+     */
+    public function __clone()
+    {
+        $this->header = clone($this->header);
+        $this->curl = new Curl();
+        $this->response = clone($this->response);
+    }
+
+    /**
      * Sets the method to use for the request.
      * @param string $method
      * @return $this Implementing fluent interface.

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Deep cloning of request entities.
+
 ### Changed
 
 - `CurlWrapper->getInfo()` now accepts `null` as argument to match the underlying `curl_getinfo()`.

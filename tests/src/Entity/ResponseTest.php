@@ -17,6 +17,23 @@ use BluePsyduckTestAssets\MultiCurl\TestCase;
 class ResponseTest extends TestCase
 {
     /**
+     * Tests the __clone() method.
+     * @covers ::__clone
+     */
+    public function testClone()
+    {
+        $header = new Header();
+        $header->set('abc', 'def');
+        $response = new Response();
+        $response->addHeader($header);
+
+        $clonedResponse = clone($response);
+        $header->set('ghi', 'fail');
+        $this->assertEquals('def', $clonedResponse->getLastHeader()->get('abc'));
+        $this->assertEquals('', $clonedResponse->getLastHeader()->get('ghi'));
+    }
+
+    /**
      * Tests the setErrorCode() method.
      * @covers ::setErrorCode
      */

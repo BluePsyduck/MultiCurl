@@ -32,6 +32,24 @@ class RequestTest extends TestCase
     }
 
     /**
+     * Tests the __clone() method.
+     * @covers ::__clone
+     */
+    public function testClone()
+    {
+        $request = new Request();
+        $clonedRequest = clone($request);
+
+        $clonedRequest->getResponse()->setContent('abc');
+        $request->getResponse()->setContent('def');
+        $request->getHeader()->set('ghi', 'jkl');
+
+        $this->assertNotEquals($request->getCurl()->getHandle(), $clonedRequest->getCurl()->getHandle());
+        $this->assertEquals('abc', $clonedRequest->getResponse()->getContent());
+        $this->assertEquals('', $clonedRequest->getHeader()->get('ghi'));
+    }
+
+    /**
      * Tests the setMethod() method.
      * @covers ::setMethod
      */
