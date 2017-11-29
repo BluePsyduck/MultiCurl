@@ -77,8 +77,8 @@ class MultiCurlManager
      */
     protected function executeNextWaitingRequest()
     {
-        if (count($this->waitingRequests) > 0 &&
-            ($this->numberOfParallelRequests === 0 || count($this->runningRequests) < $this->numberOfParallelRequests)
+        if (($this->numberOfParallelRequests === 0 || count($this->runningRequests) < $this->numberOfParallelRequests)
+            && count($this->waitingRequests) > 0
         ) {
             $this->executeRequest(reset($this->waitingRequests));
         }
