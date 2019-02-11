@@ -1,13 +1,15 @@
 language: php
 
-php:
-  - 7.0
-  - 7.1
-  - 7.2
-  - nightly
+matrix:
+  fast_finish: true
+  include:
+    - php: 7.0
+    - php: 7.1
+    - php: 7.2
+    - php: 7.3
 
 install:
-  - composer update --no-interaction
+  - composer install --prefer-dist --no-interaction
 
 script:
   - vendor/bin/phpunit --coverage-clover=coverage.xml
